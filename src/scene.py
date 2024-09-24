@@ -14,6 +14,7 @@ class Scene:
     
     def add_object(self, game_object, position):
         """Añade un objeto a la escena en una posición específica."""
+        game_object.position = position
         self.objects.append((game_object, position))
     
     def add_character(self, character, position):
@@ -27,7 +28,7 @@ class Scene:
         
         # Dibuja todos los objetos
         for game_object, position in self.objects:
-            game_object.draw(screen, position)
+            game_object.draw(screen)
         
         # Dibuja todos los personajes
         for character in self.characters:
@@ -48,6 +49,7 @@ class Scene:
                 main_character.move_to(position)
     
     def is_within_walkable_area(self, position):
+        return True
         """Verifica si una posición está dentro de alguna área caminable."""
         for polygon in self.walkable_areas:
             if is_inside_polygon(position, polygon):

@@ -2,11 +2,11 @@ import pygame
 import os
 
 class Character:
-    def __init__(self, sprite_folder, position):
+    def __init__(self, sprite_folder):
         # Cargar las imágenes de la animación
         self.sprites = self.load_sprites(sprite_folder)
         self.current_frame = 0
-        self.position = pygame.Vector2(position)  # Posición actual del personaje (referencia en el centro inferior)
+        self.position = None
         self.target_position = self.position  # Posición objetivo (a dónde se moverá)
         self.speed = 0.5  # Velocidad de movimiento del personaje
         self.is_moving = False
