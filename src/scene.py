@@ -1,13 +1,9 @@
-import pygame
 from utils import *
-from character import Character
-
-import pygame
 
 class Scene:
     def __init__(self, background_image):
         # Cargar la imagen de fondo
-        self.background_image = pygame.image.load(background_image)
+        self.background_image = background_image
         self.walkable_areas = []  # Lista de polígonos que definen las áreas caminables
         self.objects = []  # Lista de objetos en la escena
         self.characters = []  # Lista de personajes en la escena
@@ -57,39 +53,4 @@ class Scene:
             if is_inside_polygon(position, polygon):
                 return True
         return False
-
-# Ejemplo de uso
-pygame.init()
-screen = pygame.display.set_mode((1200, 800))
-
-# Crear una escena con una imagen de fondo
-scene = Scene("sagrada_familia.webp")
-
-# Añadir un área caminable (polígono de ejemplo)
-scene.set_walkable_area([(495, 599), (682, 761), (1039, 605), (770, 516)])
-
-
-# Crear y añadir un personaje a la escena
-character = Character("sprites", (663, 647))
-scene.add_character(character, (663, 647))
-
-# Bucle principal del juego
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            scene.handle_mouse_event(event.pos)
-    
-    # Actualizar la escena
-    scene.update()
-    
-    # Dibujar la escena
-    scene.draw(screen)
-    
-    # Actualizar pantalla
-    pygame.display.flip()
-
-pygame.quit()
 
