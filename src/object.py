@@ -1,15 +1,26 @@
 import pygame
 
 class Object:
-    def __init__(self, image_path):
-        image = pygame.image.load(image_path).convert_alpha()  # Carga la imagen del objeto
-        new_size = (image.get_width() // 2, image.get_height() // 2)
-        self.image = pygame.transform.scale(image, new_size)
+    def __init__(self, game, image_path, name, description):
+        self.game = game
+        self.image = pygame.image.load(image_path).convert_alpha()  # Carga la imagen del objeto
+        self.name = name
+        self.description = description
         self.position = None
-        #self.rect = self.image.get_rect(center=self.position)  # Rectángulo de colisión
+        self.rect = None
     
     def draw(self, screen):
         """Dibuja el objeto en la pantalla."""
-        draw_position = self.position - pygame.Vector2(self.image.get_width() / 2, self.image.get_height())
-        screen.blit(self.image, draw_position)
-
+        screen.blit(self.image, self.rect.topleft)
+        
+        x, y = self.game.mouse_pos
+        if self.rect.collidepoint((x,y)):
+            fix_x = x - self.rect.left
+            fix_y = y - self.rect.top
+            if self.image.get_at((fix_x, fix_y)).a > 0:
+                font = pygame.font.SysFont("Courier", 24)
+                text_surface = font.render(self.name, True, (0, 0, 0))
+                text_rect = text_surface.get_rect()
+                text_rect.centerx = x
+                text_rect.bottom = y - 20
+                screen.blit(text_surface, text_rect)

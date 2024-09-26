@@ -10,71 +10,62 @@ MAIN_CHARACTER_DIR = f"{CHARACTERS_DIR}/main"
 BACKGROUNDS_DIR = f"{ASSETS_DIR}/backgrounds"
 OBJECTS_DIR = f"{ASSETS_DIR}/objects"
 
-MAIN_CHARACTER_WALKING = f"{MAIN_CHARACTER_DIR}/walking_left"
-SAGRADA_FAMILIA_BCK = f"{BACKGROUNDS_DIR}/sagrada_familia.webp"
-CAR_IMG = f"{OBJECTS_DIR}/sf-car.png"
+# Main game class
+class Game:
+    def __init__(self, background, camera_width=600, camera_height=600, debug=False):
+        pygame.init()
+        self.mouse_pos = None
+        self.camera_width = camera_width
+        self.camera_height = camera_height
+        self.initial_screen = pygame.image.load(background)
+        self.world_width = self.initial_screen.get_width()
+        self.world_height = self.initial_screen.get_height()
+        self.current_scene = Scene(self.initial_screen)
+        self.debug = debug
+        self.screen = pygame.display.set_mode((self.camera_width, self.camera_height))
 
-# Inicializamos pygame
-pygame.init()
-sf_background = pygame.image.load(SAGRADA_FAMILIA_BCK)
-WORLD_WIDTH = sf_background.get_width()
-WORLD_HEIGHT = sf_background.get_height()
-CAMERA_WIDTH = 600
-CAMERA_HEIGHT = 600
-screen = pygame.display.set_mode((CAMERA_WIDTH, CAMERA_HEIGHT))
-world = pygame.Surface((WORLD_WIDTH, WORLD_HEIGHT))
-camera = pygame.Rect(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT)
+    def run(self):
+        pygame.mouse.set_visible(False)
+        cursor = pygame.image.load(f"{ASSETS_DIR}/cursor.png").convert_alpha()
+        world = pygame.Surface((self.world_width, self.world_height))
+        camera = pygame.Rect(0, 0, self.camera_width, self.camera_height)
+        # Bucle principal del juego
+        running = True
+        while running:
+            # Control the camera with arrow keys
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_LEFT]:
+                camera.x -= 5
+            if keys[pygame.K_RIGHT]:
+                camera.x += 5
+            if keys[pygame.K_UP]:
+                camera.y -= 5
+            if keys[pygame.K_DOWN]:
+                camera.y += 5
+            if camera.left < 0:
+                camera.left = 0
+            if camera.right > self.world_width:
+                camera.right = self.world_width
+            if camera.top < 0:
+                camera.top = 0
+            if camera.bottom > self.world_height:
+                camera.bottom = self.world_height
 
-# Crear una escena con una imagen de fondo
-scene = Scene(sf_background)
-# Añadir un área caminable (polígono de ejemplo)
-scene.set_walkable_area([(495, 599), (682, 761), (1039, 605), (770, 516)])
-# Añade un auto a la escena
-car_obj = Object(CAR_IMG)
-car_position = (700,700)
-scene.add_object(car_obj, car_position)
-# Crear y añadir un personaje a la escena
-character = Character(MAIN_CHARACTER_WALKING)
-character_position = (409,421)
-scene.add_character(character, character_position)
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            self.mouse_pos = (mouse_x + camera.x, mouse_y + camera.y)
+            cursor_rect = cursor.get_rect(center=(mouse_x, mouse_y))
 
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    self.current_scene.handle_mouse_event(self.mouse_pos)
 
-# Bucle principal del juego
-running = True
-while running:
-    
-    # Control the camera with arrow keys
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
-        camera.x -= 5
-    if keys[pygame.K_RIGHT]:
-        camera.x += 5
-    if keys[pygame.K_UP]:
-        camera.y -= 5
-    if keys[pygame.K_DOWN]:
-        camera.y += 5
-    if camera.left < 0:
-        camera.left = 0
-    if camera.right > WORLD_WIDTH:
-        camera.right = WORLD_WIDTH
-    if camera.top < 0:
-        camera.top = 0
-    if camera.bottom > WORLD_HEIGHT:
-        camera.bottom = WORLD_HEIGHT
-        
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            click_position = (event.pos[0] + camera.x, event.pos[1] + camera.y)
-            scene.handle_mouse_event(click_position)
-    
-    # Actualizar la escena
-    scene.update()
-    # Dibujar la escena
-    scene.draw(world)
-    
-    screen.blit(world, (0, 0), camera)
-    pygame.display.flip()
+            # Actualizar y dibujar la escena
+            self.current_scene.update()
+            self.current_scene.draw(world, self.debug)
+            self.screen.blit(world, (0, 0), camera)
+            self.screen.blit(cursor, cursor_rect)
+            pygame.display.flip()
 
-pygame.quit()
+        pygame.quit()
