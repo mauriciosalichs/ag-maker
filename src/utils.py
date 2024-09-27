@@ -1,6 +1,6 @@
 import math
 from typing import List, Tuple
-    
+
 def point_inside_polygon(point: Tuple[float, float], polygon: List[Tuple[float, float]]) -> bool:
     x, y = point
     inside = False
@@ -25,10 +25,10 @@ def line_segments_intersect(p1: Tuple[float, float], p2: Tuple[float, float], p3
     x2, y2 = p2
     x3, y3 = p3
     x4, y4 = p4
-    
+
     def ccw(A, B, C):
         return (C[1]-A[1]) * (B[0]-A[0]) > (B[1]-A[1]) * (C[0]-A[0])
-    
+
     return ccw(p1, p3, p4) != ccw(p2, p3, p4) and ccw(p1, p2, p3) != ccw(p1, p2, p4)
 
 def find_nearest_valid_point(current: Tuple[float, float], target: Tuple[float, float], forbidden: List[List[Tuple[float, float]]], step: float) -> Tuple[float, float]:
@@ -57,7 +57,7 @@ def generate_path(start_pos: Tuple[float, float], end_pos: Tuple[float, float], 
             break
 
         next_pos = find_nearest_valid_point(current_pos, end_pos, forbidden, step)
-        
+
         if next_pos == current_pos:
             step /= 2  # If stuck, reduce step size
             if step < 0.1:  # If step size becomes too small, we're truly stuck
@@ -67,4 +67,4 @@ def generate_path(start_pos: Tuple[float, float], end_pos: Tuple[float, float], 
         path.append(next_pos)
         current_pos = next_pos
     return path
-    
+
