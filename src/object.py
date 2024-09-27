@@ -8,9 +8,17 @@ class Object:
         self.description = description
         self.position = None
         self.rect = None
+        self.font = pygame.font.SysFont("Courier", 24, bold=True)
+        self.text_surface = self.font.render(self.name, True, (0, 0, 0))
+        self.text_rect = self.text_surface.get_rect()
+                
     
     def draw(self, screen):
         """Dibuja el objeto en la pantalla."""
+        if self.game.debug:
+        	self.image.set_alpha(100)
+       	else:
+       		self.image.set_alpha(255)
         screen.blit(self.image, self.rect.topleft)
         
         x, y = self.game.mouse_pos
@@ -18,9 +26,6 @@ class Object:
             fix_x = x - self.rect.left
             fix_y = y - self.rect.top
             if self.image.get_at((fix_x, fix_y)).a > 0:
-                font = pygame.font.SysFont("Courier", 24)
-                text_surface = font.render(self.name, True, (0, 0, 0))
-                text_rect = text_surface.get_rect()
-                text_rect.centerx = x
-                text_rect.bottom = y - 20
-                screen.blit(text_surface, text_rect)
+                self.text_rect.centerx = x
+                self.text_rect.bottom = y - 20
+                screen.blit(self.text_surface, self.text_rect)

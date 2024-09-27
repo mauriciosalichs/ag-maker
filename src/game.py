@@ -26,43 +26,40 @@ class Game:
         self.cursor = pygame.image.load(f"{ASSETS_DIR}/cursor.png").convert_alpha()
         self.world = pygame.Surface((self.world_width, self.world_height))
         self.camera = pygame.Rect(0, 0, self.camera_width, self.camera_height)
+        
+        # Debug Mode
         self.debug = debug
+        self.point_selected = None
 
-    def change_polygon(self):
-        running = True
-        point = None
-        point_selected = False
-        while running:
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            self.mouse_pos = (mouse_x + self.camera.x, mouse_y + self.camera.y)
-            cursor_rect = self.cursor.get_rect(center=(mouse_x, mouse_y))
+    def debug_mode(self, keys, mouse_pos, event = None):
+        mouse_x, mouse_y = mouse_pos
+        if self.point_selected:
+            i,j = self.point_selected
+            self.current_scene.forbidden_areas[i][j] = (mouse_x, mouse_y)
+        if event == pygame.MOUSEBUTTONDOWN:
+            for i, poly in enumerate(self.current_scene.forbidden_areas):
+                if self.point_selected:
+                    break
+                for j, point in enumerate(poly):
+                    if abs(mouse_x-point[0]) < 10 and abs(mouse_y-point[1]) < 10:
+                        self.point_selected = (i, j)
+                        print("selected",i,j)
+                        break
+        elif event == pygame.MOUSEBUTTONUP:
+            self.point_selected = None
+            
 
-            if point_selected:
-                self.current_scene.forbidden_areas[ind_i][ind_j] = (mouse_x, mouse_y)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    for i, poly in enumerate(self.current_scene.forbidden_areas):
-                        if point_selected:
-                            break
-                        for j, point in enumerate(poly):
-                            if abs(mouse_x-point[0]) < 10 and  abs(mouse_y-point[1]) < 10:
-                                point_selected = True
-                                ind_i, ind_j = i, j
-                                print("selected",i,j)
-                                break
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    point_selected = False
-                    point = None
-
-            # Actualizar y dibujar la escena
-            self.current_scene.update()
-            self.current_scene.draw(self.world, self.debug)
-            self.screen.blit(self.world, (0, 0), self.camera)
-            self.screen.blit(self.cursor, cursor_rect)
-            pygame.display.flip()
-
+    def handle_mouse_click(self, mouse_pos):
+        if self.debug:
+            self.debug_mode([], mouse_pos, pygame.MOUSEBUTTONDOWN)
+        else:
+            self.current_scene.handle_mouse_event(mouse_pos)
+    	  
+    def handle_mouse_release(self, mouse_pos):
+        if self.debug:
+            self.debug_mode([], mouse_pos, pygame.MOUSEBUTTONUP)
+        else:
+            pass
 
     def run(self):
         # Bucle principal del juego
@@ -91,17 +88,30 @@ class Game:
                 self.camera.top = 0
             if self.camera.bottom > self.world_height:
                 self.camera.bottom = self.world_height
-
+                
             self.mouse_pos = (mouse_x + self.camera.x, mouse_y + self.camera.y)
             cursor_rect = self.cursor.get_rect(center=(mouse_x, mouse_y))
+                
+            if keys[pygame.K_q]:
+                    running = False
+            if keys[pygame.K_d]:
+                if self.debug:
+                    self.debug = False
+                    self.screen = pygame.display.set_mode((self.camera_width, self.camera_height))
+                else:
+                    self.debug = True
+                    self.screen = pygame.display.set_mode((self.camera_width, self.camera_height+200))
+            # Actions to perform in Debug Mode:
+            if self.debug:
+               self.debug_mode(keys, self.mouse_pos)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    with open("game.pkl", "wb") as file:
-                        pickle.dump(self, file)
                     running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    self.handle_mouse_click(self.mouse_pos)
                 elif event.type == pygame.MOUSEBUTTONUP:
-                    self.current_scene.handle_mouse_event(self.mouse_pos)
+                    self.handle_mouse_release(self.mouse_pos)
 
             # Actualizar y dibujar la escena
             self.current_scene.update()
