@@ -6,7 +6,7 @@ MAIN_CHARACTER_WALKING = f"{MAIN_CHARACTER_DIR}/walking_left"
 SAGRADA_FAMILIA_BCK = f"{BACKGROUNDS_DIR}/sagrada_familia.webp"
 CAR_IMG = f"{OBJECTS_DIR}/sf-car.png"
 
-game = Game(SAGRADA_FAMILIA_BCK,debug=True)
+game = Game(SAGRADA_FAMILIA_BCK,1200, 900, True)
 # Añadir un área caminable (polígono de ejemplo)
 game.current_scene.add_walkable_area([(166, 300), (161, 450), (678, 780), (1066, 615)])
 # Añadir un area prohibida
