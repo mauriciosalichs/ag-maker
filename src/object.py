@@ -15,7 +15,7 @@ class Object:
     
     def draw(self, screen):
         """Dibuja el objeto en la pantalla."""
-        if self.game.debug:
+        if self.game.debug.working:
         	self.image.set_alpha(100)
        	else:
        		self.image.set_alpha(255)

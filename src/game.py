@@ -1,4 +1,5 @@
 import pygame
+from debug import Debug
 from scene import Scene
 import pickle
 
@@ -27,39 +28,7 @@ class Game:
         self.world = pygame.Surface((self.world_width, self.world_height))
         self.camera = pygame.Rect(0, 0, self.camera_width, self.camera_height)
         
-        # Debug Mode
-        self.debug = debug
-        self.point_selected = None
-
-    def debug_mode(self, keys, mouse_pos, event = None):
-        mouse_x, mouse_y = mouse_pos
-        if self.point_selected:
-            i,j = self.point_selected
-            self.current_scene.forbidden_areas[i][j] = (mouse_x, mouse_y)
-        if event == pygame.MOUSEBUTTONDOWN:
-            for i, poly in enumerate(self.current_scene.forbidden_areas):
-                if self.point_selected:
-                    break
-                for j, point in enumerate(poly):
-                    if abs(mouse_x-point[0]) < 10 and abs(mouse_y-point[1]) < 10:
-                        self.point_selected = (i, j)
-                        print("selected",i,j)
-                        break
-        elif event == pygame.MOUSEBUTTONUP:
-            self.point_selected = None
-            
-
-    def handle_mouse_click(self, mouse_pos):
-        if self.debug:
-            self.debug_mode([], mouse_pos, pygame.MOUSEBUTTONDOWN)
-        else:
-            self.current_scene.handle_mouse_event(mouse_pos)
-    	  
-    def handle_mouse_release(self, mouse_pos):
-        if self.debug:
-            self.debug_mode([], mouse_pos, pygame.MOUSEBUTTONUP)
-        else:
-            pass
+        self.debug = Debug(self)
 
     def run(self):
         # Bucle principal del juego
@@ -95,27 +64,19 @@ class Game:
             if keys[pygame.K_q]:
                     running = False
             if keys[pygame.K_d]:
-                if self.debug:
-                    self.debug = False
-                    self.screen = pygame.display.set_mode((self.camera_width, self.camera_height))
-                else:
-                    self.debug = True
-                    self.screen = pygame.display.set_mode((self.camera_width, self.camera_height+200))
-            # Actions to perform in Debug Mode:
-            if self.debug:
-               self.debug_mode(keys, self.mouse_pos)
+                self.debug.working = True
+                self.debug.run()
+                # self.screen = pygame.display.set_mode((self.camera_width, self.camera_height+200))
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    self.handle_mouse_click(self.mouse_pos)
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    self.handle_mouse_release(self.mouse_pos)
+                    self.current_scene.handle_mouse_event((mouse_x, mouse_y))
 
             # Actualizar y dibujar la escena
             self.current_scene.update()
-            self.current_scene.draw(self.world, self.debug)
+            self.current_scene.draw(self.world, self.debug.working)
             self.screen.blit(self.world, (0, 0), self.camera)
             self.screen.blit(self.cursor, cursor_rect)
             pygame.display.flip()
