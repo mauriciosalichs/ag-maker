@@ -72,7 +72,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    self.current_scene.handle_mouse_event((mouse_x, mouse_y))
+                    self.current_scene.handle_mouse_event(self.mouse_pos)
 
             # Actualizar y dibujar la escena
             self.current_scene.update()

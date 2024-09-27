@@ -22,8 +22,7 @@ class Scene:
     
     def add_object(self, game_object, position):
         """Añade un objeto a la escena en una posición específica."""
-        game_object.position = position
-        game_object.rect = game_object.image.get_rect(midbottom=game_object.position)  # Rectángulo de colisión
+        game_object.set_position(position)  # Rectángulo de colisión
         self.objects.append(game_object)
     
     def add_character(self, character, position):

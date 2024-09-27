@@ -12,13 +12,16 @@ class Object:
         self.text_surface = self.font.render(self.name, True, (0, 0, 0))
         self.text_rect = self.text_surface.get_rect()
                 
-    
+    def set_position(self, position):
+        self.position = position
+        self.rect = self.image.get_rect(midbottom=position)
+        
     def draw(self, screen):
         """Dibuja el objeto en la pantalla."""
         if self.game.debug.working:
-        	self.image.set_alpha(100)
-       	else:
-       		self.image.set_alpha(255)
+            self.image.set_alpha(100)
+        else:
+            self.image.set_alpha(255)
         screen.blit(self.image, self.rect.topleft)
         
         x, y = self.game.mouse_pos
