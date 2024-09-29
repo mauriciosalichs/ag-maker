@@ -1,9 +1,9 @@
 import pygame
 
 class Object:
-    def __init__(self, game, image_path, name, description):
+    def __init__(self, game, image_path, name, description, image = None):
         self.game = game
-        self.image = pygame.image.load(image_path).convert_alpha()  # Carga la imagen del objeto
+        self.image = image if image else pygame.image.load(image_path).convert_alpha()  # Carga la imagen del objeto
         self.name = name
         self.description = description
         self.position = None
@@ -18,7 +18,7 @@ class Object:
         
     def draw(self, screen):
         """Dibuja el objeto en la pantalla."""
-        if self.game.debug.working:
+        if self.game.debug_running:
             self.image.set_alpha(100)
         else:
             self.image.set_alpha(255)

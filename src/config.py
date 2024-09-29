@@ -1,0 +1,5 @@
+ASSETS_DIR = "../assets"
+CHARACTERS_DIR = f"{ASSETS_DIR}/characters"
+MAIN_CHARACTER_DIR = f"{CHARACTERS_DIR}/main"
+BACKGROUNDS_DIR = f"{ASSETS_DIR}/backgrounds"
+OBJECTS_DIR = f"{ASSETS_DIR}/objects"

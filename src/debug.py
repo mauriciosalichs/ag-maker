@@ -1,40 +1,108 @@
 import pygame
+import os
 from enum import Enum
+from config import *
+from object import Object
 
 class DebugMode(Enum):
     IDLE = 0
-    CHANGE_POLYGONS = 1
-    ADD_OBJECT = 2
-    MOVE_OBJECT = 3
-    CHANGE_OBJECT_SIZE = 4
+    ADD_POLYGON = 1
+    MODIFY_POLYGON = 2
+    ADD_OBJECT = 3
+    MODIFY_OBJECT = 4
+
+menu_text = [
+    "Welcome to debug mode:",
+    "A - Add Object, M - Modify Object, N-M - Change Object Size",
+    "W - Add Walk Polygon, F - Add Forbidden Polygon, P - Modify Polygon",
+    "Esc - Exit Debug Mode"
+]
 
 class Debug:
     def __init__(self, game):
         self.game = game
-        self.working = False
-        self.point_selected = None
+        self.mode = DebugMode.IDLE
+        self.height = 100
+        self.rect = None
+
+        # Text and fonts
+        self.font = pygame.font.Font(None, 23)
+        self.text_adding_objects = self.font.render("Adding objects...", True, (255,255,255))
+
+        # Common variables
+        self.ceil = None
         self.mouse_x = None
         self.mouse_y = None
         self.old_x = None
         self.old_y = None
-        self.grabbed_object = None
-        self.mode = DebugMode.IDLE
+
+        # Modify polygon
+        self.point_selected = None
+
+        # Add object
+        self.object_imgs = None
         self.new_object_image = None
-        
-    def open_file(self):
-        try:
-            import pyperclip
-        except:
-            print("No tienes instalado pyperclip")
-            return
-        try:
-            clipboard_content = pyperclip.paste()
-            self.new_object_image = pygame.image.load(clipboard_content).convert_alpha()
-        except:
-           print("No has copiado la ruta de una imagen")
-           return
-		
-    def change_polygon(self, event = None):
+        self.new_object_name = None
+        self.scale_factor = 1.0
+
+        # Modify object
+        self.grabbed_object = None
+
+    def go_to_idle(self):
+        self.mode = DebugMode.IDLE
+        pygame.draw.rect(self.game.screen, (0,0,0), self.rect)
+        line_spacing = 5  # Espaciado entre líneas
+        total_height = sum([self.font.size(line)[1] for line in menu_text]) + (line_spacing * (len(menu_text) - 1))
+        y_offset = self.rect.y + (self.rect.height - total_height) // 2  # Centrar verticalmente
+        for line in menu_text:
+            text_surface = self.font.render(line, True, (255,255,255))
+            text_rect = text_surface.get_rect(center=(self.rect.centerx, y_offset))
+            self.game.screen.blit(text_surface, text_rect)
+            y_offset += self.font.size(line)[1] + line_spacing  # Siguiente línea
+
+    def load_imgs(self):
+        pygame.draw.rect(self.game.screen, (0, 0, 0), self.rect)
+        text_adding_objects_rect = self.text_adding_objects.get_rect(center=self.rect.center)
+        self.game.screen.blit(self.text_adding_objects, text_adding_objects_rect)
+        self.object_imgs = []
+        obj_imgs = [f for f in os.listdir(OBJECTS_DIR) if os.path.splitext(f)[1].lower() == '.png']
+        for img_file in obj_imgs:
+            img = pygame.image.load(f"{OBJECTS_DIR}/{img_file}")
+            name = img_file.split('.')[0]
+            rect = pygame.Rect(len(self.object_imgs)*self.height, self.ceil, self.height, self.height)
+            self.object_imgs.append((name, img))
+            image_width, image_height = img.get_size()
+            scale_w = rect.width / image_width
+            scale_h = rect.height / image_height
+            scale = min(scale_w, scale_h)  # Elegir la escala más pequeña para mantener la relación de aspecto
+            # Calcular el nuevo tamaño de la imagen
+            new_size = (int(image_width * scale), int(image_height * scale))
+            # Redimensionar la imagen
+            img = pygame.transform.scale(img, new_size)
+            # Encontrar la posición para centrar la imagen dentro del rectángulo
+            resized_rect = img.get_rect(center=rect.center)
+            self.game.screen.blit(img, resized_rect)
+            name_text = self.font.render(name, True, (255, 255, 255))
+            self.game.screen.blit(name_text, resized_rect)
+
+    def add_object(self, event = None):
+        if event == pygame.MOUSEBUTTONDOWN:
+            if self.new_object_image and self.mouse_y < self.ceil:
+                scaled_image = pygame.transform.scale(self.new_object_image, (
+                    int(self.new_object_image.get_rect().width * self.scale_factor),
+                    int(self.new_object_image.get_rect().height * self.scale_factor)))
+                obj = Object(self.game, None, self.new_object_name, "", scaled_image)
+                self.game.current_scene.add_object(obj, (self.mouse_x, self.mouse_y))
+                # TODO: Arreglar posicion, no funciona cuando se mueve la camara
+                self.new_object_image = None
+                self.go_to_idle()
+            elif self.mouse_y > self.ceil and self.mouse_x < len(self.object_imgs)*self.height:
+                self.scale_factor = 1.0
+                i = int(self.mouse_x / self.height)
+                self.new_object_name, self.new_object_image = self.object_imgs[i]
+                print(self.new_object_image)
+
+    def modify_polygon(self, event = None):
         if self.point_selected:
             i,j = self.point_selected
             self.game.current_scene.forbidden_areas[i][j] = (self.mouse_x, self.mouse_y)
@@ -74,37 +142,48 @@ class Debug:
 		
         if self.mode == DebugMode.IDLE:
             return
-        elif self.mode == DebugMode.CHANGE_POLYGONS:
-            self.change_polygon(event_type)
-        elif self.mode == DebugMode.MOVE_OBJECT:
+        elif self.mode == DebugMode.MODIFY_POLYGON:
+            self.modify_polygon(event_type)
+        elif self.mode == DebugMode.ADD_OBJECT:
+            self.add_object(event_type)
+        elif self.mode == DebugMode.MODIFY_OBJECT:
             self.move_object(event_type)
 
     def run(self):
         pygame.mouse.set_visible(True)
-        while self.working:
+        running = True
+        print(f"Running debug with ceil {self.ceil}")
+        while running:
             keys = pygame.key.get_pressed()
             mouse_pos = pygame.mouse.get_pos()
-            self.mouse_x = mouse_pos[0] + self.game.camera.x
-            self.mouse_y = mouse_pos[1] + self.game.camera.y
+            self.mouse_x = mouse_pos[0]# + self.game.camera.x
+            self.mouse_y = mouse_pos[1]# + self.game.camera.y
             
-            if keys[pygame.K_f]:
-                self.working = False
+            if keys[pygame.K_ESCAPE]:
+                running = False
             elif keys[pygame.K_i] and self.mode != DebugMode.IDLE:
                 print("DEBUG MODE: IDLE")
-                self.mode = DebugMode.IDLE
-            elif keys[pygame.K_p] and self.mode != DebugMode.CHANGE_POLYGONS:
-                print("DEBUG MODE: CHANGE POLYGONS")
-                self.mode = DebugMode.CHANGE_POLYGONS
+                self.go_to_idle()
+            elif keys[pygame.K_w] and self.mode != DebugMode.ADD_WALKABLE_POLYGON:
+                print("DEBUG MODE: ADD_WALKABLE_POLYGON")
+                self.mode = DebugMode.ADD_WALKABLE_POLYGON
+            elif keys[pygame.K_f] and self.mode != DebugMode.ADD_FORBIDDEN_POLYGON:
+                print("DEBUG MODE: ADD_FORBIDDEN_POLYGON")
+                self.mode = DebugMode.ADD_FORBIDDEN_POLYGON
+            elif keys[pygame.K_p] and self.mode != DebugMode.MODIFY_POLYGON:
+                print("DEBUG MODE: MODIFY POLYGON")
+                self.mode = DebugMode.MODIFY_POLYGON
             elif keys[pygame.K_a] and self.mode != DebugMode.ADD_OBJECT:
                 print("DEBUG MODE: ADD OBJECT")
-                img_path = self.open_file()
+                self.load_imgs()
                 self.mode = DebugMode.ADD_OBJECT
-            elif keys[pygame.K_m] and self.mode != DebugMode.MOVE_OBJECT:
+            elif keys[pygame.K_m] and self.mode != DebugMode.MODIFY_OBJECT:
                 print("DEBUG MODE: MOVE OBJECT")
-                self.mode = DebugMode.MOVE_OBJECT
-            elif keys[pygame.K_s] and self.mode != DebugMode.CHANGE_OBJECT_SIZE:
-                print("DEBUG MODE: CHANGE OBJECT SIZE")
-                self.mode = DebugMode.CHANGE_OBJECT_SIZE
+                self.mode = DebugMode.MODIFY_OBJECT
+            elif keys[pygame.K_n] and self.new_object_image and self.scale_factor > 0.01:
+                self.scale_factor -= 0.01
+            elif keys[pygame.K_m] and self.new_object_image:
+                self.scale_factor += 0.01
             
             self.perform_action()
             for event in pygame.event.get():
@@ -114,10 +193,14 @@ class Debug:
             self.game.current_scene.update()
             self.game.current_scene.draw(self.game.world, self.game.debug)
             self.game.screen.blit(self.game.world, (0, 0), self.game.camera)
-            
-            if self.new_object_image:
-                rect = self.new_object_image.get_rect(midbottom=(self.mouse_x,self.mouse_y))
-                self.game.screen.blit(self.new_object_image, rect.topleft)
+
+            if self.new_object_image and self.mouse_y < self.ceil:
+                scaled_image = pygame.transform.scale(self.new_object_image, (
+                 int(self.new_object_image.get_rect().width * self.scale_factor),
+                 int(self.new_object_image.get_rect().height * self.scale_factor)))
+                print("mouse x",self.mouse_x,"mouse y",self.mouse_y)
+                rect = scaled_image.get_rect(midbottom=(self.mouse_x,self.mouse_y))
+                self.game.screen.blit(scaled_image, rect.topleft)
             	
             pygame.display.flip()
         pygame.mouse.set_visible(False)

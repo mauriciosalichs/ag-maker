@@ -1,13 +1,8 @@
 import pygame
 from debug import Debug
 from scene import Scene
+from config import *
 import pickle
-
-ASSETS_DIR = "../assets"
-CHARACTERS_DIR = f"{ASSETS_DIR}/characters"
-MAIN_CHARACTER_DIR = f"{CHARACTERS_DIR}/main"
-BACKGROUNDS_DIR = f"{ASSETS_DIR}/backgrounds"
-OBJECTS_DIR = f"{ASSETS_DIR}/objects"
 
 # Main game class
 class Game:
@@ -29,6 +24,7 @@ class Game:
         self.camera = pygame.Rect(0, 0, self.camera_width, self.camera_height)
         
         self.debug = Debug(self)
+        self.debug_running = False
 
     def run(self):
         # Bucle principal del juego
@@ -64,9 +60,16 @@ class Game:
             if keys[pygame.K_q]:
                     running = False
             if keys[pygame.K_d]:
-                self.debug.working = True
+                # Go to Debug Mode
+                self.debug_running = True
+                self.screen = pygame.display.set_mode((self.camera_width, self.camera_height + self.debug.height))
+                self.debug.ceil = self.camera_height
+                self.debug.rect = pygame.Rect(0, self.camera_height, self.camera_width, self.debug.height)
+                self.debug.go_to_idle()
                 self.debug.run()
-                # self.screen = pygame.display.set_mode((self.camera_width, self.camera_height+200))
+                # Screen go back to normal after Debugging
+                self.screen = pygame.display.set_mode((self.camera_width, self.camera_height))
+                self.debug_running = False
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -76,7 +79,7 @@ class Game:
 
             # Actualizar y dibujar la escena
             self.current_scene.update()
-            self.current_scene.draw(self.world, self.debug.working)
+            self.current_scene.draw(self.world)
             self.screen.blit(self.world, (0, 0), self.camera)
             self.screen.blit(self.cursor, cursor_rect)
             pygame.display.flip()
