@@ -1,6 +1,22 @@
 import math
 from typing import List, Tuple
 
+def distance_point_line(x, y, p1, p2):
+    x1, y1 = p1
+    x2, y2 = p2
+    n = abs((y2 - y1) * x - (x2 - x1) * y + x2 * y1 - y2 * x1)
+    d = math.sqrt((y2 - y1) ** 2 + (x2 - x1) ** 2)
+    return n/d
+
+def point_near_polygon(px, py, polygon, umbral=10):
+    n = len(polygon)
+    for i in range(len(polygon)):
+        p1 = polygon[i]
+        p2 = polygon[(i + 1) % n]
+        if distance_point_line(px, py, p1, p2) <= umbral:
+            return i
+    return None
+
 def point_inside_polygon(point: Tuple[float, float], polygon: List[Tuple[float, float]]) -> bool:
     x, y = point
     inside = False

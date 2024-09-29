@@ -2,14 +2,16 @@ import pygame
 import os
 from enum import Enum
 from config import *
+from utils import *
 from object import Object
 
 class DebugMode(Enum):
     IDLE = 0
-    ADD_POLYGON = 1
-    MODIFY_POLYGON = 2
-    ADD_OBJECT = 3
-    MODIFY_OBJECT = 4
+    ADD_WALKABLE_POLYGON = 1
+    ADD_FORBIDDEN_POLYGON = 2
+    MODIFY_POLYGON = 3
+    ADD_OBJECT = 4
+    MODIFY_OBJECT = 5
 
 menu_text = [
     "Welcome to debug mode:",
@@ -36,7 +38,9 @@ class Debug:
         self.old_x = None
         self.old_y = None
 
-        # Modify polygon
+        # Polygons
+        self.tmp_polygon = []
+        self.new_polygon = []
         self.point_selected = None
 
         # Add object
@@ -85,6 +89,26 @@ class Debug:
             name_text = self.font.render(name, True, (255, 255, 255))
             self.game.screen.blit(name_text, resized_rect)
 
+    def add_polygon(self, event=None):
+        if event == pygame.MOUSEBUTTONDOWN:
+            if self.new_polygon:
+                px, py = self.new_polygon[0]
+                if abs(self.mouse_x - px) < 10 and abs(self.mouse_y - py) < 10:
+                    # Adjust polygon for no-debug mode
+                    new_polygon = [(x+self.game.camera.x, y+self.game.camera.y) for (x,y)
+                                   in self.new_polygon]
+                    self.game.current_scene.forbidden_areas.append(new_polygon)
+                    self.mode = DebugMode.IDLE
+                    self.tmp_polygon = []
+                    self.new_polygon = []
+                    return
+            self.new_polygon.append((self.mouse_x, self.mouse_y))
+        else:
+            if not self.new_polygon:
+                return
+            else:
+                self.tmp_polygon = self.new_polygon + [(self.mouse_x, self.mouse_y)]
+
     def add_object(self, event = None):
         if event == pygame.MOUSEBUTTONDOWN:
             if self.new_object_image and self.mouse_y < self.ceil:
@@ -92,8 +116,11 @@ class Debug:
                     int(self.new_object_image.get_rect().width * self.scale_factor),
                     int(self.new_object_image.get_rect().height * self.scale_factor)))
                 obj = Object(self.game, None, self.new_object_name, "", scaled_image)
-                self.game.current_scene.add_object(obj, (self.mouse_x, self.mouse_y))
-                # TODO: Arreglar posicion, no funciona cuando se mueve la camara
+                # Adjust to no-debug world
+                px, py = self.mouse_x + self.game.camera.x, self.mouse_y + self.game.camera.y
+                self.game.current_scene.add_object(obj, (px, py))
+                fp = [obj.rect.topleft,obj.rect.topright,obj.rect.bottomright,obj.rect.bottomleft]
+                self.game.current_scene.forbidden_areas.append(fp)
                 self.new_object_image = None
                 self.go_to_idle()
             elif self.mouse_y > self.ceil and self.mouse_x < len(self.object_imgs)*self.height:
@@ -114,6 +141,16 @@ class Debug:
                     if abs(self.mouse_x-point[0]) < 10 and abs(self.mouse_y-point[1]) < 10:
                         self.point_selected = (i, j)
                         break
+            # If none of the vertices were selected, try with the lines
+            if not self.point_selected:
+                for i, poly in enumerate(self.game.current_scene.forbidden_areas):
+                    # TODO: Fix problem, is not being able to detect collision after first point of the poly
+                    j = point_near_polygon(self.mouse_x, self.mouse_y, poly)
+                    if j:
+                        # Adjust to no-debug world
+                        px,py = self.mouse_x + self.game.camera.x, self.mouse_y + self.game.camera.y
+                        self.game.current_scene.forbidden_areas[i].insert(j+1, (px,py))
+                        self.point_selected = (i,j+1)
         elif event == pygame.MOUSEBUTTONUP:
             self.point_selected = None
             
@@ -142,6 +179,8 @@ class Debug:
 		
         if self.mode == DebugMode.IDLE:
             return
+        elif self.mode == DebugMode.ADD_FORBIDDEN_POLYGON:
+            self.add_polygon(event_type)
         elif self.mode == DebugMode.MODIFY_POLYGON:
             self.modify_polygon(event_type)
         elif self.mode == DebugMode.ADD_OBJECT:
@@ -201,6 +240,9 @@ class Debug:
                 print("mouse x",self.mouse_x,"mouse y",self.mouse_y)
                 rect = scaled_image.get_rect(midbottom=(self.mouse_x,self.mouse_y))
                 self.game.screen.blit(scaled_image, rect.topleft)
+
+            if self.tmp_polygon:
+                pygame.draw.polygon(self.game.screen, (255,0,0), self.tmp_polygon, 3)
             	
             pygame.display.flip()
         pygame.mouse.set_visible(False)
