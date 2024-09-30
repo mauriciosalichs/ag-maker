@@ -13,6 +13,7 @@ class Object:
         self.text_rect = self.text_surface.get_rect()
         
         # Logic properties of an object
+        self.position_to_interact = None
         self.is_grabbable = False
         self.is_in_inventory = False
         self.standalone_use = False
@@ -20,6 +21,9 @@ class Object:
     def set_position(self, position):
         self.position = position
         self.rect = self.image.get_rect(midbottom=position)
+
+    def observe(self):
+        print(f"Observing {self.name}: {self.description}")
         
     def draw(self, screen):
         """Dibuja el objeto en la pantalla."""

@@ -50,8 +50,8 @@ class Scene:
             if not main_char_drawn and \
                self.main_character.rect.colliderect(obj.rect) and \
                self.main_character.position[1] < obj.position[1]:	# El objeto debe aparecer adelante, entonces el personaje se dibujara primero
-	            self.main_character.draw(screen)
-	            main_char_drawn = True
+                self.main_character.draw(screen)
+                main_char_drawn = True
             obj.draw(screen)
         if not main_char_drawn:		# Si el personaje aun no fue dibujado, lo hacemos aquí
             self.main_character.draw(screen)
@@ -69,21 +69,21 @@ class Scene:
         x,y = position
         object_clicked = False
         if button == 1: 	# Left click
-        	for obj in self.objects:
-        		if obj.rect.collidepoint((x,y)):
-        			print("We clicked",obj.name)
-        			object_clicked = True
-        			break
-		    if not object_clicked: # No object clicked, then we try to walk
-				self.walkable_path = self.gen_walkable_path(position)
-				if self.walkable_path:
-				    self.characters[0].walking_path = self.walkable_path[1:]
-				    self.characters[0].move_to(self.walkable_path[0])
-		elif button == 3: 	# Right click
-			for obj in self.objects:
-        		if obj.rect.collidepoint((x,y)):
-        			print(f"We observe {obj.name}: {obj.description}")
-        			break
+            for obj in self.objects:
+                if obj.rect.collidepoint((x,y)):
+                    print("We clicked",obj.name)
+                    object_clicked = True
+                    break
+            if not object_clicked: # No object clicked, then we try to walk
+                self.walkable_path = self.gen_walkable_path(position)
+                if self.walkable_path:
+                    self.characters[0].walking_path = self.walkable_path[1:]
+                    self.characters[0].move_to(self.walkable_path[0])
+        elif button == 3: 	# Right click
+            for obj in self.objects:
+                if obj.rect.collidepoint((x,y)):
+                    print(f"We observe {obj.name}: {obj.description}")
+                    break
         			
     
     def gen_walkable_path(self, end_position): # Por ahora, solo consideraremos un unico poligono caminable

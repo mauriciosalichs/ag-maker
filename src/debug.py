@@ -76,22 +76,13 @@ class Debug:
             name = img_file.split('.')[0]
             rect = pygame.Rect(len(self.object_imgs)*self.height, self.ceil, self.height, self.height)
             self.object_imgs.append((name, img))
-            image_width, image_height = img.get_size()
-            scale_w = rect.width / image_width
-            scale_h = rect.height / image_height
-            scale = min(scale_w, scale_h)  # Elegir la escala más pequeña para mantener la relación de aspecto
-            # Calcular el nuevo tamaño de la imagen
-            new_size = (int(image_width * scale), int(image_height * scale))
-            # Redimensionar la imagen
-            img = pygame.transform.scale(img, new_size)
-            # Encontrar la posición para centrar la imagen dentro del rectángulo
-            resized_rect = img.get_rect(center=rect.center)
+            img, resized_rect = rescale_to_rect(img, rect)
             self.game.screen.blit(img, resized_rect)
             name_text = self.font.render(name, True, (255, 255, 255))
             self.game.screen.blit(name_text, resized_rect)
 
     def add_polygon(self, event=None):
-    	text_modify_polygon_rect = self.text_modify_polygon.get_rect(center=self.rect.center)
+        text_modify_polygon_rect = self.text_modify_polygon.get_rect(center=self.rect.center)
         self.game.screen.blit(self.text_modify_polygon, text_modify_polygon_rect)
         if event == pygame.MOUSEBUTTONDOWN:
             if self.new_polygon:

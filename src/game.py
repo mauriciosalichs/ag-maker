@@ -30,7 +30,7 @@ class Game:
         inventory_image = pygame.image.load(f"{ASSETS_DIR}/inventory.png").convert_alpha()
         self.inventory = Inventory(self, inventory_image)
         self.inventory_is_open = False
-        
+        self.grabbed_object = None
 
     def run(self):
         # Bucle principal del juego
@@ -77,14 +77,14 @@ class Game:
                 self.screen = pygame.display.set_mode((self.camera_width, self.camera_height))
                 self.debug_running = False
             if keys[pygame.K_i]:
-            	self.inventory_is_open = not self.inventory_is_open =
+            	self.inventory_is_open = not self.inventory_is_open
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                 	if self.inventory_is_open:
-                		self.handle_inventory_click(self.mouse_pos, event.button) # CHECK IF THE CAMERA IS IMPORTANT HERE
+                		self.inventory.handle_click(self.mouse_pos, event.button) # CHECK IF THE CAMERA IS IMPORTANT HERE
                 	else:
                 		self.current_scene.handle_click(self.mouse_pos, event.button)
 
@@ -95,6 +95,10 @@ class Game:
             
             if self.inventory_is_open:
             	self.inventory.show()
+
+            if self.grabbed_object:
+                rect = self.grabbed_object.image.get_rect(center=(mouse_x, mouse_y))
+                self.screen.blit(self.grabbed_object.image, rect)
             
             self.screen.blit(self.cursor, cursor_rect)
             pygame.display.flip()
