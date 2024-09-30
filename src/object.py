@@ -11,6 +11,11 @@ class Object:
         self.font = pygame.font.SysFont("Courier", 24, bold=True)
         self.text_surface = self.font.render(self.name, True, (0, 0, 0))
         self.text_rect = self.text_surface.get_rect()
+        
+        # Logic properties of an object
+        self.is_grabbable = False
+        self.is_in_inventory = False
+        self.standalone_use = False
                 
     def set_position(self, position):
         self.position = position

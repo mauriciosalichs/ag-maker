@@ -64,14 +64,27 @@ class Scene:
         for character in self.characters:
             character.update()
     
-    def handle_mouse_event(self, position):
+    def handle_click(self, position, button):
         """Maneja el evento de clic del mouse."""
-        print(position,',')
-        # Si clickeas en un área caminable, mueve al personaje principal
-        self.walkable_path = self.gen_walkable_path(position)
-        if self.walkable_path:
-            self.characters[0].walking_path = self.walkable_path[1:]
-            self.characters[0].move_to(self.walkable_path[0])
+        x,y = position
+        object_clicked = False
+        if button == 1: 	# Left click
+        	for obj in self.objects:
+        		if obj.rect.collidepoint((x,y)):
+        			print("We clicked",obj.name)
+        			object_clicked = True
+        			break
+		    if not object_clicked: # No object clicked, then we try to walk
+				self.walkable_path = self.gen_walkable_path(position)
+				if self.walkable_path:
+				    self.characters[0].walking_path = self.walkable_path[1:]
+				    self.characters[0].move_to(self.walkable_path[0])
+		elif button == 3: 	# Right click
+			for obj in self.objects:
+        		if obj.rect.collidepoint((x,y)):
+        			print(f"We observe {obj.name}: {obj.description}")
+        			break
+        			
     
     def gen_walkable_path(self, end_position): # Por ahora, solo consideraremos un unico poligono caminable
         """Genera un camino hacia un punto dentro del área caminable."""

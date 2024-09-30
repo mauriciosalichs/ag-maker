@@ -14,10 +14,10 @@ class DebugMode(Enum):
     MODIFY_OBJECT = 5
 
 menu_text = [
-    "Welcome to debug mode:",
+    "Welcome to debug mode (Press I for go back to this menu):",
     "A - Add Object, M - Modify Object, N-M - Change Object Size",
     "W - Add Walk Polygon, F - Add Forbidden Polygon, P - Modify Polygon",
-    "Esc - Exit Debug Mode"
+    "Q - Exit Debug Mode"
 ]
 
 class Debug:
@@ -30,6 +30,7 @@ class Debug:
         # Text and fonts
         self.font = pygame.font.Font(None, 23)
         self.text_adding_objects = self.font.render("Adding objects...", True, (255,255,255))
+        self.text_modify_polygon = self.font.render("Click on a point of the polygon to move it, or click on a line to create a new point.", True, (255,255,255))
 
         # Common variables
         self.ceil = None
@@ -90,6 +91,8 @@ class Debug:
             self.game.screen.blit(name_text, resized_rect)
 
     def add_polygon(self, event=None):
+    	text_modify_polygon_rect = self.text_modify_polygon.get_rect(center=self.rect.center)
+        self.game.screen.blit(self.text_modify_polygon, text_modify_polygon_rect)
         if event == pygame.MOUSEBUTTONDOWN:
             if self.new_polygon:
                 px, py = self.new_polygon[0]
@@ -98,9 +101,9 @@ class Debug:
                     new_polygon = [(x+self.game.camera.x, y+self.game.camera.y) for (x,y)
                                    in self.new_polygon]
                     self.game.current_scene.forbidden_areas.append(new_polygon)
-                    self.mode = DebugMode.IDLE
                     self.tmp_polygon = []
                     self.new_polygon = []
+                    self.go_to_idle()
                     return
             self.new_polygon.append((self.mouse_x, self.mouse_y))
         else:
@@ -198,19 +201,22 @@ class Debug:
             self.mouse_x = mouse_pos[0]# + self.game.camera.x
             self.mouse_y = mouse_pos[1]# + self.game.camera.y
             
-            if keys[pygame.K_ESCAPE]:
+            if keys[pygame.K_q]:
                 running = False
             elif keys[pygame.K_i] and self.mode != DebugMode.IDLE:
                 print("DEBUG MODE: IDLE")
                 self.go_to_idle()
             elif keys[pygame.K_w] and self.mode != DebugMode.ADD_WALKABLE_POLYGON:
                 print("DEBUG MODE: ADD_WALKABLE_POLYGON")
+                pygame.draw.rect(self.game.screen, (0,0,0), self.rect)
                 self.mode = DebugMode.ADD_WALKABLE_POLYGON
             elif keys[pygame.K_f] and self.mode != DebugMode.ADD_FORBIDDEN_POLYGON:
                 print("DEBUG MODE: ADD_FORBIDDEN_POLYGON")
+                pygame.draw.rect(self.game.screen, (0,0,0), self.rect)
                 self.mode = DebugMode.ADD_FORBIDDEN_POLYGON
             elif keys[pygame.K_p] and self.mode != DebugMode.MODIFY_POLYGON:
                 print("DEBUG MODE: MODIFY POLYGON")
+                pygame.draw.rect(self.game.screen, (0,0,0), self.rect)
                 self.mode = DebugMode.MODIFY_POLYGON
             elif keys[pygame.K_a] and self.mode != DebugMode.ADD_OBJECT:
                 print("DEBUG MODE: ADD OBJECT")
@@ -218,6 +224,7 @@ class Debug:
                 self.mode = DebugMode.ADD_OBJECT
             elif keys[pygame.K_m] and self.mode != DebugMode.MODIFY_OBJECT:
                 print("DEBUG MODE: MOVE OBJECT")
+                pygame.draw.rect(self.game.screen, (0,0,0), self.rect)
                 self.mode = DebugMode.MODIFY_OBJECT
             elif keys[pygame.K_n] and self.new_object_image and self.scale_factor > 0.01:
                 self.scale_factor -= 0.01

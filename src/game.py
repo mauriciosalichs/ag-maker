@@ -1,6 +1,7 @@
 import pygame
 from debug import Debug
 from scene import Scene
+from inventory import Inventory
 from config import *
 import pickle
 
@@ -25,6 +26,11 @@ class Game:
         
         self.debug = Debug(self)
         self.debug_running = False
+        
+        inventory_image = pygame.image.load(f"{ASSETS_DIR}/inventory.png").convert_alpha()
+        self.inventory = Inventory(self, inventory_image)
+        self.inventory_is_open = False
+        
 
     def run(self):
         # Bucle principal del juego
@@ -57,7 +63,7 @@ class Game:
             self.mouse_pos = (mouse_x + self.camera.x, mouse_y + self.camera.y)
             cursor_rect = self.cursor.get_rect(center=(mouse_x, mouse_y))
                 
-            if keys[pygame.K_q]:
+            if keys[pygame.K_ESCAPE]:
                     running = False
             if keys[pygame.K_d]:
                 # Go to Debug Mode
@@ -70,17 +76,26 @@ class Game:
                 # Screen go back to normal after Debugging
                 self.screen = pygame.display.set_mode((self.camera_width, self.camera_height))
                 self.debug_running = False
+            if keys[pygame.K_i]:
+            	self.inventory_is_open = not self.inventory_is_open =
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    self.current_scene.handle_mouse_event(self.mouse_pos)
+                	if self.inventory_is_open:
+                		self.handle_inventory_click(self.mouse_pos, event.button) # CHECK IF THE CAMERA IS IMPORTANT HERE
+                	else:
+                		self.current_scene.handle_click(self.mouse_pos, event.button)
 
             # Actualizar y dibujar la escena
             self.current_scene.update()
             self.current_scene.draw(self.world)
             self.screen.blit(self.world, (0, 0), self.camera)
+            
+            if self.inventory_is_open:
+            	self.inventory.show()
+            
             self.screen.blit(self.cursor, cursor_rect)
             pygame.display.flip()
 
