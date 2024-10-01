@@ -2,8 +2,29 @@ import math, pygame
 from typing import List, Tuple
 
 
+def split_text(text, font, max_width):
+    words = text.split(' ')
+    lines = []
+    current_line = []
+    for word in words:
+        # Append the word to the current line
+        current_line.append(word)
+        # Render the current line to check its width
+        text_surface = font.render(' '.join(current_line), True, text_color)
+        # If the line is too wide, move the last word to a new line
+        if text_surface.get_width() > max_width:
+            # Remove the last word from the current line and start a new line
+            current_line.pop()
+            lines.append(' '.join(current_line))
+            current_line = [word]
+    # Append the last line
+    lines.append(' '.join(current_line))
+    return lines
+
 # Returns new (image, rect)
-def rescale_to_rect(img, rect):
+def rescale_to_rect(img, rect=None, size=None):
+    if not rect:
+        rect = pygame.Rect(0,0,size,size)
     image_width, image_height = img.get_size()
     scale_w = rect.width / image_width
     scale_h = rect.height / image_height

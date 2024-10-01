@@ -235,7 +235,6 @@ class Debug:
                 scaled_image = pygame.transform.scale(self.new_object_image, (
                  int(self.new_object_image.get_rect().width * self.scale_factor),
                  int(self.new_object_image.get_rect().height * self.scale_factor)))
-                print("mouse x",self.mouse_x,"mouse y",self.mouse_y)
                 rect = scaled_image.get_rect(midbottom=(self.mouse_x,self.mouse_y))
                 self.game.screen.blit(scaled_image, rect.topleft)
 

@@ -17,13 +17,24 @@ class Object:
         self.is_grabbable = False
         self.is_in_inventory = False
         self.standalone_use = False
-                
+
+    def area_includes(self, x, y):
+        if not self.rect.collidepoint((x, y)):
+            return False
+        fix_x = x - self.rect.left
+        fix_y = y - self.rect.top
+        return self.image.get_at((fix_x, fix_y)).a > 0
+
     def set_position(self, position):
         self.position = position
         self.rect = self.image.get_rect(midbottom=position)
 
     def observe(self):
-        print(f"Observing {self.name}: {self.description}")
+        self.game.show_text(self.description)
+
+    def use(self, grabbed_object):
+        extra_text = f" with {grabbed_object.name}" if grabbed_object else ""
+        self.game.show_text(f"We use {self.name}{extra_text}")
         
     def draw(self, screen):
         """Dibuja el objeto en la pantalla."""

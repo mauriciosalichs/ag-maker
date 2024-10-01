@@ -2,9 +2,9 @@ import pygame
 from utils import *
 
 class Scene:
-    def __init__(self, background_image):
-        # Cargar la imagen de fondo
-        self.background_image = background_image
+    def __init__(self, game, background_image):
+        self.game = game
+        self.background_image = background_image # Cargar la imagen de fondo
         self.walkable_areas = []  # Lista de polígonos que definen las áreas caminables
         self.forbidden_areas = []  # Lista de polígonos que definen las áreas prohibidas
         self.objects = []  # Lista de objetos en la escena
@@ -64,14 +64,14 @@ class Scene:
         for character in self.characters:
             character.update()
     
-    def handle_click(self, position, button):
+    def handle_click(self, position, button, selected_object):
         """Maneja el evento de clic del mouse."""
         x,y = position
         object_clicked = False
         if button == 1: 	# Left click
             for obj in self.objects:
-                if obj.rect.collidepoint((x,y)):
-                    print("We clicked",obj.name)
+                if obj.area_includes(x,y):
+                    obj.observe()
                     object_clicked = True
                     break
             if not object_clicked: # No object clicked, then we try to walk
@@ -81,9 +81,13 @@ class Scene:
                     self.characters[0].move_to(self.walkable_path[0])
         elif button == 3: 	# Right click
             for obj in self.objects:
-                if obj.rect.collidepoint((x,y)):
-                    print(f"We observe {obj.name}: {obj.description}")
+                if obj.area_includes(x,y):
+                    obj.use(selected_object)
+                    object_clicked = True
                     break
+            if not object_clicked and not self.game.grabbed_object:
+                # No object clicked, then we open the inventory
+                self.game.inventory_is_open = True
         			
     
     def gen_walkable_path(self, end_position): # Por ahora, solo consideraremos un unico poligono caminable
