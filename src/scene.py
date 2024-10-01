@@ -1,5 +1,5 @@
 import pygame
-from utils import *
+from src.utils import *
 
 class Scene:
     def __init__(self, game, background_image):

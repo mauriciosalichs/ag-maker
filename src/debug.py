@@ -1,9 +1,8 @@
 import pygame
 import os
 from enum import Enum
-from config import *
-from utils import *
-from object import Object
+from src.utils import *
+from src.object import Object
 
 class DebugMode(Enum):
     IDLE = 0

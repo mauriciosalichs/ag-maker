@@ -1,6 +1,5 @@
 import pygame
-
-from utils import *
+from src.utils import *
 
 class Inventory:
     def __init__(self, game, image):

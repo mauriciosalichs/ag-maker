@@ -1,14 +1,13 @@
 import pygame
-from debug import Debug
-from scene import Scene
-from inventory import Inventory
-from config import *
-from utils import *
+from src.debug import Debug
+from src.scene import Scene
+from src.inventory import Inventory
+from src.utils import *
 import pickle
 
 # Main game class
 class Game:
-    def __init__(self, background, camera_width=600, camera_height=600, debug=False):
+    def __init__(self, background, camera_width=600, camera_height=600, debug=False, cursor_img_path=None, inventory_img_path=None):
         pygame.init()
         pygame.mouse.set_visible(False)
         self.main_text_font = pygame.font.SysFont("Courier", 24, bold=True)
@@ -23,14 +22,14 @@ class Game:
 
         self.current_scene = Scene(self, self.initial_screen)
         self.screen = pygame.display.set_mode((self.camera_width, self.camera_height))
-        self.cursor = pygame.image.load(f"{ASSETS_DIR}/cursor.png").convert_alpha()
+        self.cursor = pygame.image.load(cursor_img_path).convert_alpha() if cursor_img_path else None
         self.world = pygame.Surface((self.world_width, self.world_height))
         self.camera = pygame.Rect(0, 0, self.camera_width, self.camera_height)
         
         self.debug = Debug(self)
         self.debug_running = False
         
-        inventory_image = pygame.image.load(f"{ASSETS_DIR}/inventory.png").convert_alpha()
+        inventory_image = pygame.image.load(inventory_img_path).convert_alpha() if inventory_img_path else None
         self.inventory = Inventory(self, inventory_image)
         self.inventory_is_open = False
         self.grabbed_object = None
@@ -82,7 +81,7 @@ class Game:
                 self.camera.bottom = self.world_height
                 
             self.mouse_pos = (mouse_x + self.camera.x, mouse_y + self.camera.y)
-            cursor_rect = self.cursor.get_rect(center=(mouse_x, mouse_y))
+            cursor_rect = self.cursor.get_rect(center=(mouse_x, mouse_y)) if self.cursor else None
                 
             if keys[pygame.K_ESCAPE]:
                     running = False
@@ -141,7 +140,8 @@ class Game:
                 rect.center=(mouse_x, mouse_y)
                 self.screen.blit(img, rect)
             
-            self.screen.blit(self.cursor, cursor_rect)
+            if self.cursor: self.screen.blit(self.cursor, cursor_rect)
+            
             pygame.display.flip()
 
         pygame.quit()
