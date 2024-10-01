@@ -21,7 +21,8 @@ class Character:
     def load_sprites(self, folder):
         """Carga todas las imágenes de una carpeta y las devuelve como una lista."""
         sprites = []
-        for filename in sorted(os.listdir(folder)):
+        root_dir = os.path.dirname(__file__)+'/../'
+        for filename in sorted(os.listdir(root_dir+folder)):
             path = os.path.join(folder, filename)
             image = pygame.image.load(path).convert_alpha()
             # Redimensionar la imagen si es necesario

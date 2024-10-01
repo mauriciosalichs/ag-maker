@@ -1,4 +1,5 @@
 import pygame
+from src.utils import *
 
 class Object:
     def __init__(self, game, image_path, name, description, image = None):
@@ -33,8 +34,15 @@ class Object:
         self.game.show_text(self.description)
 
     def use(self, grabbed_object):
-        extra_text = f" with {grabbed_object.name}" if grabbed_object else ""
-        self.game.show_text(f"We use {self.name}{extra_text}")
+        if self.is_grabbable:
+            if euclidean_distance(self.game.current_scene.main_character.position, self.position) < 70:
+                self.game.grab_object(self)
+                self.game.show_text(f"COJEMOS {self.name}")
+            else:
+                self.game.show_text(f"Estoy demasiado lejos como para cogerlo.")
+        else:
+            extra_text = f" CON {grabbed_object.name}" if grabbed_object else ""
+            self.game.show_text(f"USAMOS {self.name}{extra_text}")
         
     def draw(self, screen):
         """Dibuja el objeto en la pantalla."""

@@ -25,8 +25,8 @@ class Game:
         self.cursor = pygame.image.load(cursor_img_path).convert_alpha() if cursor_img_path else None
         self.world = pygame.Surface((self.world_width, self.world_height))
         self.camera = pygame.Rect(0, 0, self.camera_width, self.camera_height)
-        
-        self.debug = Debug(self)
+
+        self.debug = None
         self.debug_running = False
         
         inventory_image = pygame.image.load(inventory_img_path).convert_alpha() if inventory_img_path else None
@@ -45,6 +45,10 @@ class Game:
             text = [text]
         self.remaining_lines = text[1:]
         self.show_line(text[0])
+
+    def grab_object(self, obj):
+        self.inventory.add_item(obj)
+        self.current_scene.objects.remove(obj)
 
     def show_line(self, line):
         self.start_time = pygame.time.get_ticks()
@@ -86,16 +90,17 @@ class Game:
             if keys[pygame.K_ESCAPE]:
                     running = False
             if keys[pygame.K_d]:
-                # Go to Debug Mode
-                self.debug_running = True
-                self.screen = pygame.display.set_mode((self.camera_width, self.camera_height + self.debug.height))
-                self.debug.ceil = self.camera_height
-                self.debug.rect = pygame.Rect(0, self.camera_height, self.camera_width, self.debug.height)
-                self.debug.go_to_idle()
-                self.debug.run()
-                # Screen go back to normal after Debugging
-                self.screen = pygame.display.set_mode((self.camera_width, self.camera_height))
-                self.debug_running = False
+                if self.debug:
+                    # Go to Debug Mode
+                    self.debug_running = True
+                    self.screen = pygame.display.set_mode((self.camera_width, self.camera_height + self.debug.height))
+                    self.debug.ceil = self.camera_height
+                    self.debug.rect = pygame.Rect(0, self.camera_height, self.camera_width, self.debug.height)
+                    self.debug.go_to_idle()
+                    self.debug.run()
+                    # Screen go back to normal after Debugging
+                    self.screen = pygame.display.set_mode((self.camera_width, self.camera_height))
+                    self.debug_running = False
             if keys[pygame.K_i]:
                 self.inventory_is_open = not self.inventory_is_open
 

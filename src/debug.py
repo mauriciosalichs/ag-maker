@@ -20,8 +20,9 @@ menu_text = [
 ]
 
 class Debug:
-    def __init__(self, game):
+    def __init__(self, game, objects_dir):
         self.game = game
+        self.objects_dir = objects_dir
         self.mode = DebugMode.IDLE
         self.height = 100
         self.rect = None
@@ -69,9 +70,9 @@ class Debug:
         text_adding_objects_rect = self.text_adding_objects.get_rect(center=self.rect.center)
         self.game.screen.blit(self.text_adding_objects, text_adding_objects_rect)
         self.object_imgs = []
-        obj_imgs = [f for f in os.listdir(OBJECTS_DIR) if os.path.splitext(f)[1].lower() == '.png']
+        obj_imgs = [f for f in os.listdir(self.objects_dir) if os.path.splitext(f)[1].lower() == '.png']
         for img_file in obj_imgs:
-            img = pygame.image.load(f"{OBJECTS_DIR}/{img_file}")
+            img = pygame.image.load(f"{self.objects_dir}/{img_file}")
             name = img_file.split('.')[0]
             rect = pygame.Rect(len(self.object_imgs)*self.height, self.ceil, self.height, self.height)
             self.object_imgs.append((name, img))
@@ -90,6 +91,7 @@ class Debug:
                     # Adjust polygon for no-debug mode
                     new_polygon = [(x+self.game.camera.x, y+self.game.camera.y) for (x,y)
                                    in self.new_polygon]
+                    print(f"Set FP: {new_polygon}")
                     self.game.current_scene.forbidden_areas.append(new_polygon)
                     self.tmp_polygon = []
                     self.new_polygon = []
@@ -112,6 +114,7 @@ class Debug:
                 # Adjust to no-debug world
                 px, py = self.mouse_x + self.game.camera.x, self.mouse_y + self.game.camera.y
                 self.game.current_scene.add_object(obj, (px, py))
+                print(f"Set position of {obj.name} in {px},{py}")
                 fp = [obj.rect.topleft,obj.rect.topright,obj.rect.bottomright,obj.rect.bottomleft]
                 self.game.current_scene.forbidden_areas.append(fp)
                 self.new_object_image = None
@@ -120,7 +123,6 @@ class Debug:
                 self.scale_factor = 1.0
                 i = int(self.mouse_x / self.height)
                 self.new_object_name, self.new_object_image = self.object_imgs[i]
-                print(self.new_object_image)
 
     def modify_polygon(self, event = None):
         if self.point_selected:
