@@ -2,23 +2,33 @@ import pygame
 from src.utils import *
 
 class Object:
-    def __init__(self, game, image_path, name, description, image = None, polygon=None):
+    def __init__(self, game, data, image=None):
         self.game = game
-        self.image = image if image else (pygame.image.load(image_path).convert_alpha() if image_path else None) # Carga la imagen del objeto
-        self.name = name
-        self.description = description
+
+        if image:
+            self.image = image
+        elif "imageDir" in data.keys():
+            self.image = pygame.image.load(data["imageDir"]).convert_alpha()
+        else:
+            self.image = None
+
+        self.name = data["name"]
+        self.description = data["description"]
+        self.grab_description = data["grab_description"] if "grab_description" in data.keys() else None
+        self.polygon = data["polygon"] if "polygon" in data.keys() else None
+
         self.position = None
-        self.rect = None		# For images from a file
-        self.polygon = polygon 	# For images from the scene
+        self.rect = None
+
         self.font = pygame.font.SysFont("Courier", 24, bold=True)
         self.text_surface = self.font.render(self.name, True, (0, 0, 0))
         self.text_rect = self.text_surface.get_rect()
         
         # Logic properties of an object
         self.position_to_interact = None
-        self.is_grabbable = False
-        self.is_in_inventory = False
-        self.standalone_use = False
+        self.is_grabbable = ("grabbable" in data["properties"])
+        self.is_in_inventory = ("in_inventory" in data["properties"])
+        self.standalone_use = ("standalone_use" in data["properties"])
 
     def area_includes(self, x, y):
         if self.polygon:	# Object inherent of the scene
@@ -41,7 +51,7 @@ class Object:
         if self.is_grabbable:
             if euclidean_distance(self.game.current_scene.main_character.position, self.position) < 70:
                 self.game.grab_object(self)
-                self.game.show_text(f"COJEMOS {self.name}")
+                self.game.show_text(self.grab_description if self.grab_description else f"COJEMOS {self.name}")
             else:
                 self.game.show_text(f"Estoy demasiado lejos como para cogerlo.")
         else:

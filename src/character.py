@@ -2,10 +2,11 @@ import pygame
 import os
 
 class Character:
-    def __init__(self, sprite_folder):
-        # Cargar las imágenes de la animación
+    def __init__(self, game, data):
+        self.game = game
         self.image = None
-        self.sprites = self.load_sprites(sprite_folder)
+        self.currentState = data["currentState"]
+        self.sprites = self.load_sprites(data["spritesDirs"][self.currentState])
         self.current_frame = 0
         self.position = None
         self.rect = None
@@ -75,3 +76,12 @@ class Character:
             self.sprites = [pygame.transform.flip(sprite, True, False) for sprite in self.sprites]
             self.face_left = not self.face_left
 
+    def change_state(self, data, newState):
+        self.currentState = newState
+        try:
+            self.sprites = self.load_sprites(data["spritesDirs"][self.currentState])
+        except:
+            print("not a drawable state")
+
+    def update_from_data(self, new_data):
+        eval(f"self.{new_data[0]} = {new_data[1]}")

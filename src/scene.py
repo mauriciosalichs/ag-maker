@@ -2,11 +2,13 @@ import pygame
 from src.utils import *
 
 class Scene:
-    def __init__(self, game, background_image):
+    def __init__(self, game, data):
         self.game = game
-        self.background_image = background_image # Cargar la imagen de fondo
-        self.walkable_areas = []  # Lista de polígonos que definen las áreas caminables
-        self.forbidden_areas = []  # Lista de polígonos que definen las áreas prohibidas
+        self.background_image = pygame.image.load(data['backgroundDir'])
+        self.width = self.background_image.get_width()
+        self.height = self.background_image.get_height()
+        self.walkable_areas = data['walkableAreas']
+        self.forbidden_areas = data['forbiddenAreas']
         self.objects = []  # Lista de objetos en la escena
         self.characters = []  # Lista de personajes en la escena
         self.walkable_path = None
@@ -89,7 +91,6 @@ class Scene:
             if not object_clicked and not self.game.grabbed_object:
                 # No object clicked, then we open the inventory
                 self.game.inventory_is_open = True
-        			
     
     def gen_walkable_path(self, end_position): # Por ahora, solo consideraremos un unico poligono caminable
         """Genera un camino hacia un punto dentro del área caminable."""

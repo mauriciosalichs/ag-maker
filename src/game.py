@@ -7,7 +7,7 @@ import pickle
 
 # Main game class
 class Game:
-    def __init__(self, background, camera_width=600, camera_height=600, debug=False, cursor_img_path=None, inventory_img_path=None):
+    def __init__(self, camera_width=600, camera_height=600, cursor_img_path=None):
         pygame.init()
         pygame.mouse.set_visible(False)
         self.main_text_font = pygame.font.SysFont("Courier", 24, bold=True)
@@ -16,21 +16,20 @@ class Game:
         self.mouse_pos = None
         self.camera_width = camera_width
         self.camera_height = camera_height
-        self.initial_screen = pygame.image.load(background)
-        self.world_width = self.initial_screen.get_width()
-        self.world_height = self.initial_screen.get_height()
 
-        self.current_scene = Scene(self, self.initial_screen)
         self.screen = pygame.display.set_mode((self.camera_width, self.camera_height))
-        self.cursor = pygame.image.load(cursor_img_path).convert_alpha() if cursor_img_path else None
-        self.world = pygame.Surface((self.world_width, self.world_height))
         self.camera = pygame.Rect(0, 0, self.camera_width, self.camera_height)
+        self.cursor = pygame.image.load(cursor_img_path).convert_alpha() if cursor_img_path else None
+
+        self.current_scene = None
+        self.world_width = None
+        self.world_height = None
+        self.world = None
 
         self.debug = None
         self.debug_running = False
-        
-        inventory_image = pygame.image.load(inventory_img_path).convert_alpha() if inventory_img_path else None
-        self.inventory = Inventory(self, inventory_image)
+
+        self.inventory = None
         self.inventory_is_open = False
         self.grabbed_object = None
         self.remaining_lines = None
@@ -39,6 +38,16 @@ class Game:
         self.start_time = None
         self.text_surface = None
         self.text_rect = None
+
+    def set_inventory(self, inventory):
+        self.inventory = inventory
+
+    def set_scene(self, scene):
+        self.current_scene = scene
+        self.world_width = scene.width
+        self.world_height = scene.height
+        self.world = pygame.Surface((self.world_width, self.world_height))
+
 
     def show_text(self, text):
         if type(text) == str:

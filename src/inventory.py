@@ -2,13 +2,13 @@ import pygame
 from src.utils import *
 
 class Inventory:
-    def __init__(self, game, image):
+    def __init__(self, game, image_path):
         """Initialize an empty inventory."""
         self.game = game
-        self.image = image
+        self.image = pygame.image.load(image_path).convert_alpha() if image_path else None
         self.items = []  # Pair (item, rect) of items in the inventory (check for improvement)
 
-        self.rect = image.get_rect()
+        self.rect = self.image.get_rect()
         self.rect.center = (self.game.camera_width // 2, self.game.camera_height // 2)
 
         # Information about how to position the objects inside the inventory grid
