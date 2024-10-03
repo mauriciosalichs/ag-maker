@@ -20,9 +20,10 @@ class Scene:
         """Añade un área pohibida definida por un polígono."""
         self.forbidden_areas.append(polygon)
     
-    def add_object(self, game_object, position):
+    def add_object(self, game_object, position=None):
         """Añade un objeto a la escena en una posición específica."""
-        game_object.set_position(position)  # Rectángulo de colisión
+        if position:
+        	game_object.set_position(position)  # Rectángulo de colisión
         self.objects.append(game_object)
     
     def add_character(self, character, position):
@@ -47,7 +48,7 @@ class Scene:
         
         main_char_drawn = False
         for obj in self.objects:
-            if not main_char_drawn and \
+            if not main_char_drawn and obj.rect and \
                self.main_character.rect.colliderect(obj.rect) and \
                self.main_character.position[1] < obj.position[1]:	# El objeto debe aparecer adelante, entonces el personaje se dibujara primero
                 self.main_character.draw(screen)

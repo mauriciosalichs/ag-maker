@@ -24,17 +24,18 @@ def split_text(text, font, max_width):
     return lines
 
 # Returns new (image, rect)
-def rescale_to_rect(img, rect=None, size=None):
+def rescale_to_rect(img, rect=None, size=130):
     if not rect:
         rect = pygame.Rect(0,0,size,size)
     image_width, image_height = img.get_size()
-    scale_w = rect.width / image_width
-    scale_h = rect.height / image_height
-    scale = min(scale_w, scale_h)  # Elegir la escala más pequeña para mantener la relación de aspecto
-    # Calcular el nuevo tamaño de la imagen
-    new_size = (int(image_width * scale), int(image_height * scale))
-    # Redimensionar la imagen
-    img = pygame.transform.scale(img, new_size)
+    if image_width > size or image_height > size:
+        scale_w = rect.width / image_width
+        scale_h = rect.height / image_height
+        scale = min(scale_w, scale_h)  # Elegir la escala más pequeña para mantener la relación de aspecto
+        # Calcular el nuevo tamaño de la imagen
+        new_size = (int(image_width * scale), int(image_height * scale))
+        # Redimensionar la imagen
+        img = pygame.transform.scale(img, new_size)
     return img, img.get_rect(center=rect.center)
 
 def distance_point_line(x, y, p1, p2):

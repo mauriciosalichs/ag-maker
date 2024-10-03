@@ -129,6 +129,7 @@ class Game:
                     background_rect = pygame.Rect(self.text_rect.left - 10, self.text_rect.top - 5,
                                                   self.text_rect.width + 20, self.text_rect.height + 10)
                     pygame.draw.rect(self.screen, (255, 255, 255, 50), background_rect)
+                    pygame.draw.rect(self.screen, (255, 0, 0), background_rect, 2)
                     self.screen.blit(self.text_surface, self.text_rect)
                 else:
                     if self.remaining_lines:
