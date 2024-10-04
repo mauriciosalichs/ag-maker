@@ -1,12 +1,16 @@
-import pygame
-import os
+import pygame, os
+from src.utils import *
 
 class Character:
-    def __init__(self, game, data):
+    def __init__(self, game, char_id, data, dialogues):
         self.game = game
+        self.id = char_id
         self.image = None
-        self.currentState = data["currentState"]
+        self.name = data['name']
+        self.description = data['description']
+        self.currentState = data['currentState']
         self.sprites = self.load_sprites(data["spritesDirs"][self.currentState])
+        self.dialogues = dialogues
         self.current_frame = 0
         self.position = None
         self.rect = None
@@ -18,6 +22,10 @@ class Character:
         self.frame_delay = 10  # Cuántos frames de actualización se esperan antes de cambiar el sprite
         self.frame_counter = 0  # Contador de frames
         self.face_left = True
+
+        self.font = pygame.font.SysFont("Courier", 24, bold=True)
+        self.text_surface = self.font.render(self.name, True, (0, 0, 0))
+        self.text_rect = self.text_surface.get_rect()
     
     def load_sprites(self, folder):
         """Carga todas las imágenes de una carpeta y las devuelve como una lista."""
@@ -32,11 +40,45 @@ class Character:
             sprites.append(image)
         self.image = sprites[0]
         return sprites
-    
+
+    def area_includes(self, x, y):
+        if not self.rect.collidepoint((x, y)):
+            return False
+        fix_x = x - self.rect.left
+        fix_y = y - self.rect.top
+        try:
+            return self.image.get_at((fix_x, fix_y)).a > 0
+        except:
+            return False
+
+    def observe(self):
+        self.game.show_text(self.description)
+
+    def use(self, grabbed_object):
+        if grabbed_object:
+            self.game.show_text(f"USAMOS {grabbed_object.name} SOBRE {self.name}")
+        else:
+            if euclidean_distance(self.game.current_scene.main_character.position, self.position) < 70:
+                self.run_dialogue()
+            else:
+                self.game.show_text(f"Estoy demasiado lejos como para hablar.")
+
+    def run_dialogue(self):
+        if not self.dialogues:
+            self.game.show_text("¿Por que demonios le hablaría?")
+            return
+        # self.game.start_conversation(self.dialogues)
+
     def draw(self, screen):
         """Dibuja el personaje en la pantalla usando su referencia inferior central."""
         self.image = self.sprites[self.current_frame]
         screen.blit(self.image, self.rect.topleft)
+
+        x, y = self.game.mouse_pos
+        if self.area_includes(x, y):
+            self.text_rect.centerx = x
+            self.text_rect.bottom = y - 20
+            screen.blit(self.text_surface, self.text_rect)
     
     def update(self):
         """Actualiza la posición del personaje y la animación."""
@@ -62,7 +104,7 @@ class Character:
                     self.move_to(position)
                 else:
                     # Detenerse al llegar al destino
-                    self.position = self.target_position
+                    self.position = [self.target_position.x, self.target_position.y]
                     self.rect = self.image.get_rect(midbottom=self.position)  # Rectángulo de colisión
                     self.is_moving = False
                     self.current_frame = 0  # Frame estático inicial

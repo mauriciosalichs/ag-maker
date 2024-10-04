@@ -195,6 +195,8 @@ class Debug:
             
             if keys[pygame.K_q]:
                 running = False
+            elif keys[pygame.K_c]:
+                print(self.mouse_x, self.mouse_y)
             elif keys[pygame.K_i] and self.mode != DebugMode.IDLE:
                 print("DEBUG MODE: IDLE")
                 self.go_to_idle()

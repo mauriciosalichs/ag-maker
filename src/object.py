@@ -2,8 +2,9 @@ import pygame
 from src.utils import *
 
 class Object:
-    def __init__(self, game, data, image=None):
+    def __init__(self, game, id, data, image=None):
         self.game = game
+        self.id = id
 
         if image:
             self.image = image

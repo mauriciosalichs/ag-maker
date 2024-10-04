@@ -2,8 +2,15 @@
   "characters": {
     "mainCharacter": {
       "name": "Guybrush Tarragona",
+      "description": ["Que muchachote mas apuesto."],
       "states": ["walkingLeft"],
       "currentState": "walkingLeft"
+    },
+    "manny": {
+      "name": "Manny Calavera",
+      "description": ["Se parece a aquel arquitecto famoso."],
+      "states": ["idle"],
+      "currentState": "idle"
     }
   },
   "objects": {
@@ -52,7 +59,7 @@
       "walkableAreas": [[[166, 300], [161, 450], [678, 780], [1066, 615]]],
       "forbiddenAreas": [[[238, 500],[239, 473],[276, 473],[271, 519]],[[400, 555],[609, 446],[789, 516],[673, 595],[518, 624]],[[658, 707],[658, 693],[694, 691],[680, 715]]],
       "objects": [["streetLamp",[330,500]],["streetCar",[580,600]],["streetTent",[793,432]],["tenisBall",[669,716]],["sf",""]],
-      "characters": [["mainCharacter",[409,421]]]
+      "characters": [["mainCharacter",[409,421]],["manny",[762,658]]]
     }
   },
   "inventory": {

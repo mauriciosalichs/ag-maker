@@ -1,0 +1,103 @@
+{ "dialogues": {
+  "manny": {
+    "start": {
+      "text": ["Oh, ¿what troubles you, young turist?"],
+      "responses": [
+        {
+          "text": "What do you find fascinating about this building?",
+          "next": "architectResponse1"
+        },
+        {
+          "text": "Is Barcelona's architecture inspired by any particular styles?",
+          "next": "architectResponse2"
+        }
+      ]
+    },
+    "architectResponse1": {
+      "text": ["Every corner and crevice of this structure tells a story","of the city's evolution. Look at how the modernist","elements blend with Gothic traditions!"],
+      "responses": [
+        {
+          "text": "Can you give an example of such a blend?",
+          "next": "detailedExample"
+        },
+        {
+          "text": "That's interesting! How do you think it affects people living here?",
+          "next": "culturalImpact"
+        }
+      ]
+    },
+    "architectResponse2": {
+      "text": ["Yes, Barcelona is a melting pot of styles.","From Romanesque to Modernism, every era has left its imprint.","The most famous, perhaps, is Modernisme,","which you can see vividly","in the works of Antoni Gaudí."],
+      "responses": [
+        {
+          "text": "What's unique about Modernisme?",
+          "next": "modernismeDetail"
+        },
+        {
+          "text": "How do these historical styles influence modern building techniques?",
+          "next": "historicalInfluence"
+        }
+      ]
+    },
+    "detailedExample": {
+      "text": ["Take, for example, the Palau de la Música Catalana.","Its stained glass and ironwork reflect Gothic influences,","while the overall expression is distinctively Modernist."],
+      "responses": [
+        {
+          "text": "It sounds like there's a story behind the design. What inspired it?",
+          "next": "designInspiration"
+        },
+        {
+          "text": "Who were the architects involved in this project?",
+          "next": "architectsInfo"
+        }
+      ]
+    },
+    "culturalImpact": {
+      "text": ["Architecture shapes the environment we live in.","It can inspire community and pride or evoke nostalgia","and tradition, influencing our daily life and collective memory."],
+      "responses": [
+        {
+          "text": "Can you share an example where architecture has directly influenced community behavior?",
+          "next": "architectureCommunityExample"
+        }
+      ]
+    },
+    "modernismeDetail": {
+      "text": ["Modernisme is characterized by rich colors, intricate patterns,","and flowing, organic shapes. It’s not just about aesthetics;","it's about expressing a Catalan identity."],
+      "responses": [
+        {
+          "text": "How do these elements reflect Catalan identity?",
+          "next": "identityReflection"
+        }
+      ]
+    },
+    "historicalInfluence": {
+      "text": ["Historical styles teach us about the durability and utility","of materials and designs, guiding today's","sustainable and innovative architectural practices."],
+      "responses": [
+        {
+          "text": "Could you give an example of how these historical lessons are applied in modern projects?",
+          "next": "historicalLessonsApplication"
+        }
+      ]
+    },
+    "designInspiration": {
+      "text": ["The design was inspired by the rich musical heritage of Catalonia,","intended to resonate with the vibrant cultural life of the region."],
+      "responses": []
+    },
+    "architectsInfo": {
+      "text": ["The Palau was designed by Lluís Domènech i Montaner,","a key figure in the Catalan Modernisme movement."],
+      "responses": []
+    },
+    "architectureCommunityExample": {
+      "text": ["For instance, the open design of Plaça de Catalunya encourages","gatherings and celebrations, fostering a sense","of community among residents."],
+      "responses": []
+    },
+    "identityReflection": {
+      "text": ["The use of local materials and motifs in Modernisme not","only highlights regional artisanal skills but also serves","as a symbol of Catalan pride and heritage."],
+      "responses": []
+    },
+    "historicalLessonsApplication": {
+      "text": ["Modern buildings often incorporate high ceilings and large windows,","features that have proven their value in historical buildings","for improving natural light and air circulation."],
+      "responses": []
+    }
+  }
+}}

@@ -2,8 +2,9 @@ import pygame
 from src.utils import *
 
 class Scene:
-    def __init__(self, game, data):
+    def __init__(self, game, id, data):
         self.game = game
+        self.id = id
         self.background_image = pygame.image.load(data['backgroundDir'])
         self.width = self.background_image.get_width()
         self.height = self.background_image.get_height()
@@ -13,7 +14,7 @@ class Scene:
         self.characters = []  # Lista de personajes en la escena
         self.walkable_path = None
         self.main_character = None
-    
+
     def add_walkable_area(self, polygon):
         """Añade un área caminable definida por un polígono."""
         self.walkable_areas.append(polygon)
@@ -63,33 +64,38 @@ class Scene:
             character.draw(screen)
     
     def update(self):
-        """Actualiza la lógica de la escena."""
         for character in self.characters:
             character.update()
+        # Something else to update?
     
     def handle_click(self, position, button, selected_object):
-        """Maneja el evento de clic del mouse."""
         x,y = position
         object_clicked = False
         if button == 1: 	# Left click
+            for char in self.characters:
+                if char.area_includes(x, y):
+                    char.observe()
+                    return
             for obj in self.objects:
                 if obj.area_includes(x,y):
                     obj.observe()
-                    object_clicked = True
-                    break
-            if not object_clicked: # No object clicked, then we try to walk
-                self.walkable_path = self.gen_walkable_path(position)
-                if self.walkable_path:
-                    self.characters[0].walking_path = self.walkable_path[1:]
-                    self.characters[0].move_to(self.walkable_path[0])
+                    return
+            # No object or character clicked, then we try to walk
+            self.walkable_path = self.gen_walkable_path(position)
+            if self.walkable_path:
+                self.characters[0].walking_path = self.walkable_path[1:]
+                self.characters[0].move_to(self.walkable_path[0])
         elif button == 3: 	# Right click
+            for char in self.characters:
+                if char.area_includes(x,y):
+                    char.use(selected_object)
+                    return
             for obj in self.objects:
                 if obj.area_includes(x,y):
                     obj.use(selected_object)
-                    object_clicked = True
-                    break
-            if not object_clicked and not self.game.grabbed_object:
-                # No object clicked, then we open the inventory
+                    return
+            # No object or character clicked, then we open the inventory
+            if not self.game.grabbed_object:
                 self.game.inventory_is_open = True
     
     def gen_walkable_path(self, end_position): # Por ahora, solo consideraremos un unico poligono caminable
