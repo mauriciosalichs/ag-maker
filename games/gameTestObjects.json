@@ -1,0 +1,91 @@
+{"objects": {
+  "streetLamp": {
+    "img": "Lampara.png",
+    "name": "Lampara",
+    "description": [
+      "Una lámpara alta, de metal negro, con un diseño minimalista.",
+      "Su luz es tenue, casi como si",
+      "estuviera luchando por mantenerse encendida."
+    ],
+    "notUsable": [
+      "La lámpara no tiene un botón con la cual pueda apagarla."
+    ],
+    "properties": []
+  },
+  "streetCar": {
+    "img": "Coche.png",
+    "name": "Coche",
+    "description": [
+      "Es un coche de aspecto antiguo, con la pintura desconchada",
+      "y las ruedas ligeramente desinfladas.",
+      "No parece que haya nadie dentro,",
+      "pero no se mueve desde hace un buen rato.",
+      "¿Quién lo habrá dejado aquí?"
+    ],
+    "notUsable": [
+      "No tengo las llaves del coche para abrirlo."
+    ],
+    "properties": []
+  },
+  "streetTent": {
+    "img": "Carpa.png",
+    "name": "Carpa",
+    "description": [
+      "Una tienda de campaña plantada justo en medio de la calle.",
+      "Está algo sucia y parece haber resistido",
+      "varias noches a la intemperie.",
+      "¿Qué clase de persona decide acampar aquí?"
+    ],
+    "notUsable": [
+      "No me meteré ahi dentro, huele muy feo."
+    ],
+    "properties": []
+  },
+  "tenisBall": {
+    "img": "Pelota.png",
+    "name": "Pelota",
+    "description": [
+      "Me recuerda a la pelota que tenía mi tata."
+    ],
+    "properties": [
+      "grabbable"
+    ],
+    "grabDescription": [
+      "Nunca se sabe cuándo podré necesitar algo que rebote."
+    ]
+  },
+  "sf": {
+    "polygon": [
+      [
+        1242,
+        420
+      ],
+      [
+        956,
+        377
+      ],
+      [
+        960,
+        145
+      ]
+    ],
+    "name": "Sagrada Familia",
+    "description": [
+      "Wooow. Está tan inacabada como prometían."
+    ],
+    "notUsable": [
+      "Hay una fila enorme para entrar, y no he reservado."
+    ],
+    "properties": []
+  },
+  "myNotebook": {
+    "img": "Cuaderno.png",
+    "name": "Cuaderno",
+    "description": [
+      "Nunca salgo de mi casa sin mi libreta."
+    ],
+    "properties": [
+      "in_inventory"
+    ]
+  }
+}}

@@ -24,12 +24,16 @@ class Object:
         self.font = pygame.font.SysFont("Courier", 24, bold=True)
         self.text_surface = self.font.render(self.name, True, (0, 0, 0))
         self.text_rect = self.text_surface.get_rect()
+        self.not_usable_text = data["notUsable"] if "notUsable" in data.keys() else ""
         
         # Logic properties of an object
         self.position_to_interact = None
         self.is_grabbable = ("grabbable" in data["properties"])
         self.is_in_inventory = ("in_inventory" in data["properties"])
         self.standalone_use = ("standalone_use" in data["properties"])
+
+    def change_name(self, name):
+        self.name = name
 
     def area_includes(self, x, y):
         if self.polygon:	# Object inherent of the scene
@@ -49,15 +53,20 @@ class Object:
         self.game.show_text(self.description)
 
     def use(self, grabbed_object):
+        #if euclidean_distance(self.game.current_scene.main_character.position, self.position) > 150:
+        #    self.game.show_text(f"Estoy demasiado lejos.")
         if self.is_grabbable:
-            if euclidean_distance(self.game.current_scene.main_character.position, self.position) < 70:
-                self.game.grab_object(self)
+            if self.game.grab_object(self):
                 self.game.show_text(self.grab_description if self.grab_description else f"COJEMOS {self.name}")
-            else:
-                self.game.show_text(f"Estoy demasiado lejos como para cogerlo.")
         else:
-            extra_text = f" CON {grabbed_object.name}" if grabbed_object else ""
-            self.game.show_text(f"USAMOS {self.name}{extra_text}")
+            if grabbed_object:
+                if not self.game.use_object_with_target(self.id, grabbed_object.id):
+                    self.game.show_text("No se porque haría eso.")
+            elif not self.game.use_object(self.id):
+                if self.not_usable_text:
+                    self.game.show_text(self.not_usable_text)
+                else:
+                    self.game.show_text("No se porque haría eso.")
         
     def draw(self, screen):
         """Dibuja el objeto en la pantalla, excepto si esta dentro de la escena misma."""

@@ -1,0 +1,24 @@
+{ "characters": {
+  "mainCharacter": {
+    "name": "Guybrush Tarragona",
+    "description": [
+      "Que muchachote mas apuesto."
+    ],
+    "states": [
+      "walkingLeft"
+    ],
+    "currentState": "walkingLeft",
+    "dialogueColor": "BLACK"
+  },
+  "manny": {
+    "name": "Manny Calavera",
+    "description": [
+      "Se parece a aquel arquitecto famoso."
+    ],
+    "states": [
+      "idle"
+    ],
+    "currentState": "idle",
+    "dialogueColor": "GREEN"
+  }
+}}

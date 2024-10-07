@@ -4,6 +4,7 @@ from src.character import Character
 from src.object import Object
 from src.debug import Debug
 from src.inventory import Inventory
+from src.actions import Actions
 
 import json
 
@@ -49,51 +50,57 @@ def load_data(file):
         data = json.load(f)
     return data
 
-game_data = load_data("games/gameTest.json")
-dialogues_data = load_data("games/gameTestDialogues.json")
-data = game_data['game']
-dialogues = dialogues_data['dialogues']
+game_data = load_data("games/gameTest.json")['game']
+scenes_data = load_data("games/gameTestScenes.json")['scenes']
+characters_data = load_data("games/gameTestCharacters.json")['characters']
+objects_data = load_data("games/gameTestObjects.json")['objects']
+dialogues_data = load_data("games/gameTestDialogues.json")['dialogues']
+actions_data = load_data("games/gameTestActions.json")['actions']
 
 # Set all image paths
 
-for key, value in data["characters"].items():
-    data["characters"][key]['spritesDirs'] = {}
+for key, value in characters_data.items():
+    characters_data[key]['spritesDirs'] = {}
     for state in value['states']:
-        data["characters"][key]['spritesDirs'][state] = f"{config['CHARACTERS_DIR']}/{key}/{state}"
+        characters_data[key]['spritesDirs'][state] = f"{config['CHARACTERS_DIR']}/{key}/{state}"
 
-for key, value in data["objects"].items():
+for key, value in objects_data.items():
     if 'img' in value.keys():
-        data["objects"][key]['imageDir'] = f"{config['OBJECTS_DIR']}/{value['img']}"
+        objects_data[key]['imageDir'] = f"{config['OBJECTS_DIR']}/{value['img']}"
 
-for key, value in data["scenes"].items():
-    data["scenes"][key]['backgroundDir'] = f"{config['BACKGROUNDS_DIR']}/{value['backgroundImg']}"
+for key, value in scenes_data.items():
+    scenes_data[key]['backgroundDir'] = f"{config['BACKGROUNDS_DIR']}/{value['backgroundImg']}"
 
 CURSOR_PATH = f"{config['ASSETS_DIR']}/cursor.png"
 INVENTORY_PATH = f"{config['ASSETS_DIR']}/inventory.png"
 
 # We setup the game with initial scene
 
-game = Game(data["cameraWidth"], data["cameraHeight"], CURSOR_PATH)
+game = Game(game_data["cameraWidth"], game_data["cameraHeight"], CURSOR_PATH)
 
-iD = data['inventory']
+iD = game_data['inventory']
 inventory = Inventory(game, INVENTORY_PATH)
 inventory.setup(iD['grid'], iD['leftPadding'], iD['topPadding'], iD['cellSize'], iD['hspace'], iD['vspace'])
 for od in iD["items"]:
-    object_data = data["objects"][od]
+    object_data = objects_data[od]
     inventory.add_item(Object(game, od, object_data))
-game.set_inventory(inventory)
 
-current_scene_data = data["scenes"][data["currentScene"]]
-current_scene = Scene(game, data["currentScene"], current_scene_data)
+actions = Actions(game, actions_data)
+
+current_scene_data = scenes_data[game_data["currentScene"]]
+current_scene = Scene(game, game_data["currentScene"], current_scene_data)
 for od in current_scene_data["objects"]:
-    object_data = data["objects"][od[0]]
+    object_data = objects_data[od[0]]
     current_scene.add_object(Object(game, od[0], object_data), od[1])
 for cd in current_scene_data["characters"]:
-    character_data = data["characters"][cd[0]]
-    char_dialogues = dialogues[cd[0]] if cd[0] in dialogues.keys() else None
+    character_data = characters_data[cd[0]]
+    char_dialogues = dialogues_data[cd[0]] if cd[0] in dialogues_data.keys() else None
     current_scene.add_character(Character(game, cd[0], character_data, char_dialogues), cd[1])
 
+game.set_inventory(inventory)
+game.set_actions(actions)
 game.set_scene(current_scene)
+
 
 if config['DEBUG']:
     game.debug = Debug(game, config['OBJECTS_DIR'])

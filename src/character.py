@@ -1,6 +1,12 @@
 import pygame, os
 from src.utils import *
 
+# Colors for dialogue
+BLACK = (0,0,0)
+GREEN = (0,255,0)
+BLUE = (0,0,255)
+RED = (255,0,0)
+
 class Character:
     def __init__(self, game, char_id, data, dialogues):
         self.game = game
@@ -9,6 +15,7 @@ class Character:
         self.name = data['name']
         self.description = data['description']
         self.currentState = data['currentState']
+        self.dialogue_color = eval(data['dialogueColor'])
         self.sprites = self.load_sprites(data["spritesDirs"][self.currentState])
         self.dialogues = dialogues
         self.current_frame = 0
@@ -26,7 +33,10 @@ class Character:
         self.font = pygame.font.SysFont("Courier", 24, bold=True)
         self.text_surface = self.font.render(self.name, True, (0, 0, 0))
         self.text_rect = self.text_surface.get_rect()
-    
+
+    def change_name(self, name):
+        self.name = name
+
     def load_sprites(self, folder):
         """Carga todas las imágenes de una carpeta y las devuelve como una lista."""
         sprites = []
@@ -55,19 +65,22 @@ class Character:
         self.game.show_text(self.description)
 
     def use(self, grabbed_object):
-        if grabbed_object:
-            self.game.show_text(f"USAMOS {grabbed_object.name} SOBRE {self.name}")
+        if euclidean_distance(self.game.current_scene.main_character.position, self.position) > 70:
+            self.game.show_text(f"Estoy demasiado lejos.")
+        elif grabbed_object and not self.game.use_object_with_target(self.id, grabbed_object.id):
+            self.game.show_text("No se porque haría eso.")
         else:
-            if euclidean_distance(self.game.current_scene.main_character.position, self.position) < 70:
-                self.run_dialogue()
-            else:
-                self.game.show_text(f"Estoy demasiado lejos como para hablar.")
+            self.run_dialogue()
 
     def run_dialogue(self):
         if not self.dialogues:
-            self.game.show_text("¿Por que demonios le hablaría?")
+            self.speak("¿Por que demonios le hablaría?")
             return
         # self.game.start_conversation(self.dialogues)
+
+    def speak(self, text):
+        # TODO: Add voice? Change animation when speaking?
+        self.game.show_text(text, self.dialogue_color)
 
     def draw(self, screen):
         """Dibuja el personaje en la pantalla usando su referencia inferior central."""
