@@ -24,15 +24,16 @@
     "Otherwise if its a proper checkpoint, adds it as obtained and launches (if any) associated trigger."],
   "useWithTargetRules": [
     ["myNotebook","streetCar",[],"nuNo tengo nada que escribir sobre este coche."],
-    ["carKeys","streetCar",[],"runningCar"]
+    ["tenisBall","streetCar",[],"runningCar"]
   ],
 
   "__triggers": ["Links checkpoints with actions to be performed when we get them. This actions can be from",
       "changing the attributes of a target object (character, object, scene..) to launch animations, or even",
       "moving to another scene (for example [game,change_scene,playaBogatell] ) "],
   "triggers" : {
-    "architectAskForSomething" : [["C_manny","speak","No puedes cojer mi pelota."],
-                                  ["C_manny","move_to",[706,685]]],
+    "architectAskForSomething" : [["C_manny","move_to",[706,685]],
+                                  ["C_manny","speak","No puedes cojer mi pelota."],
+                                  ["C_manny","move_to",[762,658]]],
     "runningCar" : [["C_mainCharacter","speak","OH. Era la llave de ESTE coche."],
                     ["O_streetCar","change_name","Coche encendido."]],
     "carStartRunning" : [["game","playAnimation","getInsideCar"],

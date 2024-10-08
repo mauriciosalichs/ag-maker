@@ -42,13 +42,16 @@ class Game:
 
         # Things still not implemented
         self.actions = None
-        self.action_started = False
+        self.action_in_place = False
         self.choose_response = False
 
     # Set other components of the game
 
     def set_actions(self, actions):
         self.actions = actions
+
+    def current_action_finished(self):
+        self.actions.continue_current_actions()
 
     def set_inventory(self, inventory):
         self.inventory = inventory
@@ -94,7 +97,7 @@ class Game:
     # Handle mouse click and redirect to appropiate component
 
     def handle_click(self, button):
-        if self.action_started:     # wherever we have a running animation or any
+        if self.action_in_place:     # wherever we have a running animation or any
             return                  # other special event, we ignore the click
         if self.choose_response:
             pass # self.conversation.handle_click(...)
@@ -138,7 +141,7 @@ class Game:
             self.mouse_pos = (mouse_x + self.camera.x, mouse_y + self.camera.y)
             cursor_rect = self.cursor.get_rect(center=(mouse_x, mouse_y)) if self.cursor else None
 
-            if not (self.action_started or self.choose_response):
+            if not (self.action_in_place or self.choose_response):
                 if keys[pygame.K_ESCAPE]:
                         running = False
                 if keys[pygame.K_d]:
@@ -190,6 +193,7 @@ class Game:
                         self.show_line(line)
                     else:
                         self.text_surface = None
+                        self.current_action_finished()
 
             # If there is a grabbed object, we show it now
             if self.grabbed_object:
@@ -198,7 +202,21 @@ class Game:
                 img.set_alpha(180)
                 rect.center=(mouse_x, mouse_y)
                 self.screen.blit(img, rect)
-            
+
+            # We show the name of whichever element is being pointed
+            tmpy = 0
+            x, y = self.mouse_pos
+            pointed_e = None
+            for e in self.current_scene.objects + self.current_scene.characters:
+                if e.area_includes(x, y):
+                    if e.position and e.position[1] > tmpy:
+                        pointed_e = e
+                        tmpy = e.position[1]
+            if pointed_e:
+                pointed_e.text_rect.centerx = mouse_x
+                pointed_e.text_rect.bottom = mouse_y - 20
+                self.screen.blit(pointed_e.text_surface, pointed_e.text_rect)
+
             if self.cursor: self.screen.blit(self.cursor, cursor_rect)
             pygame.display.flip()
 

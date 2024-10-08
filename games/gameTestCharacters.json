@@ -19,6 +19,6 @@
       "idle"
     ],
     "currentState": "idle",
-    "dialogueColor": "GREEN"
+    "dialogueColor": "(0,0,255)"
   }
 }}

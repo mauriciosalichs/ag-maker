@@ -15,7 +15,7 @@ class Object:
 
         self.name = data["name"]
         self.description = data["description"]
-        self.grab_description = data["grab_description"] if "grab_description" in data.keys() else None
+        self.grab_description = data["grabDescription"] if "grabDescription" in data.keys() else None
         self.polygon = data["polygon"] if "polygon" in data.keys() else None
 
         self.position = None
@@ -34,6 +34,9 @@ class Object:
 
     def change_name(self, name):
         self.name = name
+        self.text_surface = self.font.render(self.name, True, (0, 0, 0))
+        self.text_rect = self.text_surface.get_rect()
+        self.game.current_action_finished()
 
     def area_includes(self, x, y):
         if self.polygon:	# Object inherent of the scene
@@ -53,9 +56,10 @@ class Object:
         self.game.show_text(self.description)
 
     def use(self, grabbed_object):
-        #if euclidean_distance(self.game.current_scene.main_character.position, self.position) > 150:
-        #    self.game.show_text(f"Estoy demasiado lejos.")
-        if self.is_grabbable:
+        if self.position and \
+            euclidean_distance(self.game.current_scene.main_character.position, self.position) > 150:
+            self.game.show_text(f"Estoy demasiado lejos.")
+        elif self.is_grabbable:
             if self.game.grab_object(self):
                 self.game.show_text(self.grab_description if self.grab_description else f"COJEMOS {self.name}")
         else:
@@ -76,9 +80,3 @@ class Object:
             else:
                 self.image.set_alpha(255)
             screen.blit(self.image, self.rect.topleft)
-        
-        x, y = self.game.mouse_pos
-        if self.area_includes(x, y):
-            self.text_rect.centerx = x
-            self.text_rect.bottom = y - 20
-            screen.blit(self.text_surface, self.text_rect)

@@ -86,12 +86,6 @@ class Character:
         """Dibuja el personaje en la pantalla usando su referencia inferior central."""
         self.image = self.sprites[self.current_frame]
         screen.blit(self.image, self.rect.topleft)
-
-        x, y = self.game.mouse_pos
-        if self.area_includes(x, y):
-            self.text_rect.centerx = x
-            self.text_rect.bottom = y - 20
-            screen.blit(self.text_surface, self.text_rect)
     
     def update(self):
         """Actualiza la posición del personaje y la animación."""
@@ -121,6 +115,7 @@ class Character:
                     self.rect = self.image.get_rect(midbottom=self.position)  # Rectángulo de colisión
                     self.is_moving = False
                     self.current_frame = 0  # Frame estático inicial
+                    self.game.current_action_finished()
     
     def move_to(self, position):
         """Mueve el personaje a una posición dada usando como referencia el centro inferior."""

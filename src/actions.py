@@ -7,6 +7,8 @@ class Actions:
         self.useWithTargetRules = actions_data['useWithTargetRules']
         self.triggers = actions_data['triggers']
 
+        self.current_actions = []
+
     def allowGrab(self, obj_id):
         print("allowGrab", obj_id)
         object_has_rules = False
@@ -47,14 +49,23 @@ class Actions:
         pass
 
     def launch_trigger(self, cpId):
+        self.game.action_in_place = True
         triggers = self.triggers[cpId]
         for tTarget, tParam, tValue in triggers:
             print("LAUNCHING", tTarget, tParam, tValue)
             entity = self.get_entity(tTarget)
-            attr = getattr(entity, tParam)
-            attr(tValue)
-            # Estas acciones se deben ejecutar secuencialmente una a la vez,
-            # y el juego no debe permitir interacción hasta que todas terminen
+            self.current_actions.append((entity,tParam,tValue))
+        self.continue_current_actions()
+
+    def continue_current_actions(self):
+        if self.current_actions:
+            (entity,param,value) = self.current_actions[0]
+            self.current_actions = self.current_actions[1:]
+            attr = getattr(entity, param)
+            attr(value)
+        else:
+            self.game.action_in_place = False
+
 
     def get_new_state(self):
         return self.checkpoints # La nueva lista de checkpoints actuales será lo que guardemos al salir del juego
