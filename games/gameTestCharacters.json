@@ -8,7 +8,8 @@
       "walkingLeft"
     ],
     "currentState": "walkingLeft",
-    "dialogueColor": "BLACK"
+    "dialogueColor": "BLACK",
+    "goodbyePhrases":["¡Hasta la vista!","¡Adiós!","Debo irme, dejé el pollo en el horno.","Me encantaría seguir hablando, pero..."]
   },
   "manny": {
     "name": "Manny Calavera",

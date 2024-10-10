@@ -12,12 +12,13 @@ class Character:
         self.game = game
         self.id = char_id
         self.image = None
-        self.name = data['name']
-        self.description = data['description']
-        self.currentState = data['currentState']
-        self.dialogue_color = eval(data['dialogueColor'])
+        self.name = data['name'] if 'name' in data.keys() else 'Figura desconocida'
+        self.description = data['description'] if 'description' in data.keys() else 'Nada interesante que comentar.'
+        self.currentState = data['currentState'] if 'currentState' in data.keys() else 'idle'
+        self.dialogue_color = eval(data['dialogueColor']) if 'dialogueColor' in data.keys() else BLACK
         self.sprites = self.load_sprites(data["spritesDirs"][self.currentState])
-        self.dialogues = dialogues
+        self.goodbyePhrases = data['goodbyePhrases'] if 'goodbyePhrases' in data.keys() else ['Adiós.']
+        self.dialogue_data = dialogues
         self.current_frame = 0
         self.position = None
         self.rect = None
@@ -73,10 +74,10 @@ class Character:
             self.run_dialogue()
 
     def run_dialogue(self):
-        if not self.dialogues:
+        if not self.dialogue_data:
             self.speak("¿Por que demonios le hablaría?")
             return
-        # self.game.start_conversation(self.dialogues)
+        self.game.start_conversation(self)
 
     def speak(self, text):
         # TODO: Add voice? Change animation when speaking?

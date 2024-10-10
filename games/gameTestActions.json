@@ -12,6 +12,12 @@
     ["tenisBall",["architectHasSomething"],"ok"],
     ["tenisBall",[],"architectAskForSomething"]
   ],
+  
+  "__speakRules": ["Rules when a character speaks about something specific. The structure is: [charId, textId,",
+  	" matchedCheckpoints, checkpoint] where the triggers are checkpoints obtained, with an associated trigger."],
+  "speakRules": [
+    ["manny","identityReflection",[],"mannyDisapears"]
+  ],
 
   "__useRules": ["Rules to use an object. The structure is: [objectId, matchedCheckpoints, triggers] where ",
     "the triggers are checkpoints obtained, with an associated trigger."],
@@ -19,6 +25,7 @@
     ["streetCar",["runningCar"],"carStartRunning"]
 
   ],
+  
   "__useWithTargetRules": ["Rules to use an object with a target. The structure is: [objectId, targetId,",
     "matchedCheckpoints, checkpoint]. If the checkpoint starts with nu, it displays the show next to that.",
     "Otherwise if its a proper checkpoint, adds it as obtained and launches (if any) associated trigger."],
@@ -37,6 +44,7 @@
     "runningCar" : [["C_mainCharacter","speak","OH. Era la llave de ESTE coche."],
                     ["O_streetCar","change_name","Coche encendido."]],
     "carStartRunning" : [["game","playAnimation","getInsideCar"],
-                         ["game","change_scene","barcelonaMap"]]
+                         ["game","change_scene","barcelonaMap"]],
+    "mannyDisapears" : [["C_manny","move_to",[1000,1000]]]
   }
 }}

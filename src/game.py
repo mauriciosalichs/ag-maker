@@ -2,8 +2,8 @@ import pygame
 from src.debug import Debug
 from src.scene import Scene
 from src.inventory import Inventory
+from src.conversation import Conversation
 from src.utils import *
-import pickle
 
 # Main game class
 class Game:
@@ -14,6 +14,7 @@ class Game:
         self.clock = pygame.time.Clock()
 
         self.mouse_pos = None
+        self.mouse_camera_pos = None
         self.camera_width = camera_width
         self.camera_height = camera_height
 
@@ -41,6 +42,7 @@ class Game:
         self.text_rect = None
 
         # Things still not implemented
+        self.conversation = None
         self.actions = None
         self.action_in_place = False
         self.choose_response = False
@@ -49,9 +51,15 @@ class Game:
 
     def set_actions(self, actions):
         self.actions = actions
+        
+    def start_conversation(self, character):
+        self.conversation = Conversation(self, character)
+        self.conversation.start()
 
     def current_action_finished(self):
         self.actions.continue_current_actions()
+        if self.conversation:
+            self.conversation.answer()
 
     def set_inventory(self, inventory):
         self.inventory = inventory
@@ -77,6 +85,9 @@ class Game:
 
     def use_object_with_target(self, obj_id, target_id):
         return self.actions.allowUseWithTarget(obj_id, target_id)
+        
+    def check_for_actions_about_conversation(self, char_id, text_id):
+        return self.actions.checkForConversationId(char_id, text_id)
 
     # TODO: def playAnimation(self, animation):
 
@@ -100,7 +111,7 @@ class Game:
         if self.action_in_place:     # wherever we have a running animation or any
             return                  # other special event, we ignore the click
         if self.choose_response:
-            pass # self.conversation.handle_click(...)
+            self.conversation.handle_click(self.mouse_camera_pos)
         tmp_og = self.grabbed_object
         if self.inventory_is_open:
             self.inventory.handle_click(self.mouse_pos, button, self.grabbed_object)
@@ -115,6 +126,7 @@ class Game:
         while running:
             keys = pygame.key.get_pressed()
             mouse_x, mouse_y = pygame.mouse.get_pos()
+            self.mouse_camera_pos = (mouse_x, mouse_y)
 
             # Camera reposition
             mc_x, mc_y = self.current_scene.main_character.position
@@ -175,6 +187,7 @@ class Game:
             self.screen.blit(self.world, (0, 0), self.camera)
 
             # If the inventory is open, we show it now
+            # TODO: Close it when there is a grabbed object and the mouse is outside of the inventory rect
             if self.inventory_is_open:
                 self.inventory.show()
 
@@ -216,6 +229,10 @@ class Game:
                 pointed_e.text_rect.centerx = mouse_x
                 pointed_e.text_rect.bottom = mouse_y - 20
                 self.screen.blit(pointed_e.text_surface, pointed_e.text_rect)
+                
+            # We show response options, if any
+            if self.choose_response:
+                self.conversation.draw_options(self.screen)
 
             if self.cursor: self.screen.blit(self.cursor, cursor_rect)
             pygame.display.flip()

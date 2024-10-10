@@ -3,6 +3,7 @@ class Actions:
         self.game = game
         self.checkpoints = set(actions_data['checkpoints'])
         self.grabRules = actions_data['grabRules']
+        self.speakRules = actions_data['speakRules']
         self.useRules = actions_data['useRules']
         self.useWithTargetRules = actions_data['useWithTargetRules']
         self.triggers = actions_data['triggers']
@@ -47,6 +48,15 @@ class Actions:
 
     def allowSpeak(self, char_id):
         pass
+        
+    def checkForConversationId(self, char_id, text_id):
+        for chr_id, conv_id, cpCond, response in self.speakRules:
+            if chr_id == char_id and conv_id == text_id:
+                if all(elem in self.checkpoints for elem in cpCond):
+                    self.checkpoints.add(response)
+                    self.launch_trigger(response)
+                    return True
+        return False
 
     def launch_trigger(self, cpId):
         self.game.action_in_place = True
