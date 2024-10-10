@@ -35,6 +35,7 @@ class Game:
         self.grabbed_object = None
 
         # Subtitles of dialogue
+        self.current_color = None
         self.remaining_lines = None
         self.text_duration = 2000
         self.start_time = None
@@ -59,6 +60,7 @@ class Game:
     def current_action_finished(self):
         self.actions.continue_current_actions()
         if self.conversation:
+            self.current_color = None
             self.conversation.answer()
 
     def set_inventory(self, inventory):
@@ -103,6 +105,7 @@ class Game:
         if type(text) == str:
             text = [text]
         self.remaining_lines = text[1:]
+        self.current_color = color
         self.show_line(text[0], color)
 
     # Handle mouse click and redirect to appropiate component
@@ -197,13 +200,13 @@ class Game:
                     background_rect = pygame.Rect(self.text_rect.left - 10, self.text_rect.top - 5,
                                                   self.text_rect.width + 20, self.text_rect.height + 10)
                     pygame.draw.rect(self.screen, (255, 255, 255, 50), background_rect)
-                    pygame.draw.rect(self.screen, (255, 0, 0), background_rect, 2)
+                    #pygame.draw.rect(self.screen, (255, 0, 0), background_rect, 2)
                     self.screen.blit(self.text_surface, self.text_rect)
                 else:
                     if self.remaining_lines:
                         line = self.remaining_lines[0]
                         self.remaining_lines = self.remaining_lines[1:]
-                        self.show_line(line)
+                        self.show_line(line, self.current_color)
                     else:
                         self.text_surface = None
                         self.current_action_finished()

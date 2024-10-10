@@ -45,6 +45,6 @@
                     ["O_streetCar","change_name","Coche encendido."]],
     "carStartRunning" : [["game","playAnimation","getInsideCar"],
                          ["game","change_scene","barcelonaMap"]],
-    "mannyDisapears" : [["C_manny","move_to",[1000,1000]]]
+    "mannyDisapears" : [["C_manny","move_to",[1000,1300]]]
   }
 }}

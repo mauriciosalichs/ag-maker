@@ -23,30 +23,25 @@ class Conversation:
                 t_rect = t_surf.get_rect()
                 self.options_rects.append((t_surf, t_rect))
         else:
-            print("la Conversacion ha finalizado")
+            self.game.current_scene.main_character.speak('¡Hasta luego!')
             self.game.conversation = None
 
     def draw_options(self, screen):
         for i, (t_surf, t_rect) in enumerate(self.options_rects):
             background_rect = pygame.Rect(t_rect.left - 10, t_rect.top - 5,
                                           t_rect.width + 20, t_rect.height + 10)
-            pygame.draw.rect(self.game.screen, (0, 255, 0, 30), background_rect)
-            pygame.draw.rect(self.game.screen, (0, 0, 0), background_rect, 2)
+            pygame.draw.rect(self.game.screen, (0, 255, 0), background_rect)
             t_rect.midbottom = (self.game.camera_width / 2, self.game.camera_height - (i+1)*40)
             self.game.screen.blit(t_surf, t_rect)
 
     def handle_click(self, pos):
-        print("HANDLE CLICK IN OPTIONS",pos)
         for i, (t_surf, t_rect) in enumerate(self.options_rects):
-            print(t_rect)
             if t_rect.collidepoint(pos):
                 self.current_id = self.dialogue_root[self.current_id]['responses'][i]['next']
                 self.options_rects = []
                 self.game.choose_response = False
                 if self.dialogue_root[self.current_id]['text']:
                     self.start()
-                else:
-                    print('Fin')
 
     def start(self):
         self.character.speak(self.dialogue_root[self.current_id]['text'])

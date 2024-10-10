@@ -106,7 +106,7 @@ class Scene:
             for forb_pol in self.forbidden_areas:
                 if point_inside_polygon(end_position, forb_pol):
                     return None
-            polygons = self.walkable_areas
+            polygons = self.walkable_areas + self.forbidden_areas
             return calculate_path(self.main_character.position, end_position, polygons)
         return None
 
