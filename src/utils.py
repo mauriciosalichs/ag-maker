@@ -1,11 +1,4 @@
 import math, pygame
-from typing import List, Tuple
-
-from shapely.geometry import LineString, Polygon
-from shapely import intersection
-
-def euclidean_distance(point1, point2):
-    return math.sqrt((point2[0] - point1[0])**2 + (point2[1] - point1[1])**2)
 
 # Returns new (image, rect)
 def rescale_to_rect(img, rect=None, size=130):
@@ -21,6 +14,38 @@ def rescale_to_rect(img, rect=None, size=130):
         # Redimensionar la imagen
         img = pygame.transform.scale(img, new_size)
     return img, img.get_rect(center=rect.center)
+
+#-------------------------
+
+def reverse_path(original_list, sublist):
+    # Get the indices of the start and end of the sublist in the original list
+    start_index = original_list.index(sublist[0])
+    end_index = original_list.index(sublist[-1])
+    # Create the reverse path outside of the sublist
+    reverse_path = []
+    # Check if the sublist goes forward or backward
+    if (start_index < end_index) or (start_index == len(original_list) - 1 and end_index == 0):
+        # The sublist is in forward order, go backwards in the list
+        i = (start_index - 1) % len(original_list)
+        while i != end_index:
+            reverse_path.append(original_list[i])
+            i = (i - 1) % len(original_list)
+    else:
+        # The sublist is in reverse order, go forwards in the list
+        i = (start_index + 1) % len(original_list)
+        while i != end_index:
+            reverse_path.append(original_list[i])
+            i = (i + 1) % len(original_list)
+    return reverse_path
+
+def euclidean_distance(point1, point2):
+    return math.sqrt((point2[0] - point1[0])**2 + (point2[1] - point1[1])**2)
+
+def total_length(points):
+    total = 0
+    for i in range(len(points) - 1):
+        total += euclidean_distance(points[i], points[i + 1])
+    return total
 
 def distance_point_line(x, y, p1, p2):
     x1, y1 = p1
@@ -48,38 +73,54 @@ def point_inside_polygon(point, polygon):
             inside = not inside
     return inside
 
-def line_intersects_polygon(line, polygon) -> bool:
-    (x1, y1), (x2, y2) = line
+def line_intersection(p1, p2, p3, p4):
+    x1,y1 = p1
+    x2,y2 = p2
+    x3,y3 = p3
+    x4,y4 = p4
+    denom = (y4-y3)*(x2-x1) - (x4-x3)*(y2-y1)
+    if denom == 0: # parallel
+        return None
+    ua = ((x4-x3)*(y1-y3) - (y4-y3)*(x1-x3)) / denom
+    if ua < 0 or ua > 1: # out of range
+        return None
+    ub = ((x2-x1)*(y1-y3) - (y2-y1)*(x1-x3)) / denom
+    if ub < 0 or ub > 1: # out of range
+        return None
+    x = x1 + ua * (x2-x1)
+    y = y1 + ua * (y2-y1)
+    return (x,y)
+
+def line_intersects_poly(line, polygon):
+    ii = []
+    l1, l2 = line
     for i in range(len(polygon)):
         p1 = polygon[i]
         p2 = polygon[(i + 1) % len(polygon)]
-        if line_segments_intersect((x1, y1), (x2, y2), p1, p2):
-            return True
-    return False
+        if line_intersection(l1, l2, p1, p2):
+            ii.append(i)
+    return ii
 
-def line_segments_intersect(p1: Tuple[float, float], p2: Tuple[float, float], p3: Tuple[float, float], p4: Tuple[float, float]) -> bool:
-    x1, y1 = p1
-    x2, y2 = p2
-    x3, y3 = p3
-    x4, y4 = p4
-
-    def ccw(A, B, C):
-        return (C[1]-A[1]) * (B[0]-A[0]) > (B[1]-A[1]) * (C[0]-A[0])
-
-    return ccw(p1, p3, p4) != ccw(p2, p3, p4) and ccw(p1, p2, p3) != ccw(p1, p2, p4)
-
-# We asume there is at most one blocking obstacle, and we have to consider walking polygon
+# TODO: This needs A LOT of improvement
 def calculate_path(start_pos, end_pos, forb_pols):
+    intersected_polygon = None
     for polygon_coords in forb_pols:
-        line = LineString([start_pos, end_pos])
-        polygon = Polygon(polygon_coords)
-        int_points = intersection(line, polygon).coords
-        if not int_points:
+        ii = line_intersects_poly((start_pos, end_pos), polygon_coords)
+        if len(ii) == 0:
             continue
-        px1, py1 = int_points[0]
-        px2, py2 = int_points[1]
-        i = point_near_polygon(px1, py1, polygon_coords, umbral=3)
-        j = point_near_polygon(px2, py2, polygon_coords, umbral=3)
-        res = polygon_coords[i+1:j+1] if i < j else polygon_coords[i:j:-1]
-        return [start_pos,int_points[0]] + res + [int_points[1],end_pos]
+        if intersected_polygon:
+            return None
+        # int_points = [polygon_coords[ii[0]],polygon_coords[ii[-1]]]
+        intersected_polygon = (ii[0], ii[1], polygon_coords)
+    if intersected_polygon:
+        (p0, p1, polygon_coords) = intersected_polygon
+        reverse = euclidean_distance(start_pos, polygon_coords[p0]) < \
+                  euclidean_distance(start_pos, polygon_coords[p1])
+        res = polygon_coords[p0:p1] if reverse else polygon_coords[p1:p0:-1]
+        path1 = [start_pos] + res + [end_pos]
+        path2 = [start_pos] + reverse_path(polygon_coords,res) + [end_pos]
+        if total_length(path1) > total_length(path2):
+            return path2
+        else:
+            return path1
     return [start_pos,end_pos]

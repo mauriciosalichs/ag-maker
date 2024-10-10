@@ -43,7 +43,8 @@ class Scene:
         
         # DEBUG: Dibuja los poligonos
         if debug:
-            pygame.draw.polygon(screen, (0,0,255), self.walkable_areas[0], 3)
+            if self.walkable_areas:
+                pygame.draw.polygon(screen, (0,0,255), self.walkable_areas[0], 3)
             for forbidden in self.forbidden_areas:
                 pygame.draw.polygon(screen, (255,0,0), forbidden, 3)
             if self.walkable_path:
@@ -105,6 +106,7 @@ class Scene:
             for forb_pol in self.forbidden_areas:
                 if point_inside_polygon(end_position, forb_pol):
                     return None
-            return calculate_path(self.main_character.position, end_position, self.forbidden_areas)
+            polygons = self.walkable_areas
+            return calculate_path(self.main_character.position, end_position, polygons)
         return None
 
