@@ -91,18 +91,37 @@ def line_intersection(p1, p2, p3, p4):
     y = y1 + ua * (y2-y1)
     return (x,y)
 
-def line_intersects_poly(line, polygon):
-    ii = []
-    l1, l2 = line
+def line_intersects_poly(start_pos, end_pos, polygon):
+    res = []
     for i in range(len(polygon)):
         p1 = polygon[i]
         p2 = polygon[(i + 1) % len(polygon)]
-        if line_intersection(l1, l2, p1, p2):
-            ii.append(i)
-    return ii
+        pi = line_intersection(start_pos, end_pos, p1, p2)
+        res.append(pi) if pi else None
+    return res
 
-# TODO: This needs A LOT of improvement
+# Simple straight resulting path that stops on first obstacle
 def calculate_path(start_pos, end_pos, forb_pols):
+    current_length = euclidean_distance(start_pos, end_pos)
+    final_end_pos = end_pos
+    int_path = lambda x: line_intersects_poly(start_pos, end_pos, x)
+    for r in  [i for res in map(int_path, forb_pols) for i in res]:
+        l = euclidean_distance(start_pos, r)
+        if l < current_length:
+            l = current_length
+            final_end_pos = r
+    return [start_pos,final_end_pos]
+
+# TODO: This needs A LOT of improvement; for now, we will not use it
+# Change completely for the following strategy:
+# When creating the scene, function creaateWalkableGraph(walk-pol, forb_pols)
+# sets self.walkable_graph, and when we gen the path, we add start_pos and end_pos
+# to the graph, and search for the dijkstra path, or return None if not possible.
+
+def create_walkable_graph(self, wa, fas):
+    return None
+
+def __calculate_path(start_pos, end_pos, forb_pols):
     intersected_polygon = None
     for polygon_coords in forb_pols:
         ii = line_intersects_poly((start_pos, end_pos), polygon_coords)

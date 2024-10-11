@@ -12,8 +12,10 @@ class Scene:
         self.forbidden_areas = data['forbiddenAreas']
         self.objects = []  # Lista de objetos en la escena
         self.characters = []  # Lista de personajes en la escena
-        self.walkable_path = None
         self.main_character = None
+        self.walkable_path = None
+
+        self.walkable_graph = create_walkable_graph(data['walkableAreas'], data['forbiddenAreas'])
 
     def add_walkable_area(self, polygon):
         """Añade un área caminable definida por un polígono."""
@@ -109,4 +111,3 @@ class Scene:
             polygons = self.walkable_areas + self.forbidden_areas
             return calculate_path(self.main_character.position, end_position, polygons)
         return None
-
