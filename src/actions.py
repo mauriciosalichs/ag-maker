@@ -76,7 +76,6 @@ class Actions:
         else:
             self.game.action_in_place = False
 
-
     def get_new_state(self):
         return self.checkpoints # La nueva lista de checkpoints actuales será lo que guardemos al salir del juego
 

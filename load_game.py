@@ -76,7 +76,7 @@ INVENTORY_PATH = f"{config['ASSETS_DIR']}/inventory.png"
 
 # We setup the game with initial scene
 
-game = Game(game_data["cameraWidth"], game_data["cameraHeight"], CURSOR_PATH)
+game = Game(game_data, scenes_data, characters_data, objects_data, dialogues_data, CURSOR_PATH)
 
 iD = game_data['inventory']
 inventory = Inventory(game, INVENTORY_PATH)
@@ -87,20 +87,9 @@ for od in iD["items"]:
 
 actions = Actions(game, actions_data)
 
-current_scene_data = scenes_data[game_data["currentScene"]]
-current_scene = Scene(game, game_data["currentScene"], current_scene_data)
-for od in current_scene_data["objects"]:
-    object_data = objects_data[od[0]]
-    current_scene.add_object(Object(game, od[0], object_data), od[1])
-for cd in current_scene_data["characters"]:
-    character_data = characters_data[cd[0]]
-    char_dialogues = dialogues_data[cd[0]] if cd[0] in dialogues_data.keys() else None
-    current_scene.add_character(Character(game, cd[0], character_data, char_dialogues), cd[1])
-
 game.set_inventory(inventory)
 game.set_actions(actions)
-game.set_scene(current_scene)
-
+game.set_scene()
 
 if config['DEBUG']:
     game.debug = Debug(game, config['OBJECTS_DIR'])
@@ -111,6 +100,7 @@ game.run()
 if game.current_scene.main_character.is_moving:
     print("We dont save data as character is moving")
     exit()
-game_data['game'] = save_state(game.current_scene, game.inventory, data)
-with open('games/savedState.json', 'w') as f:
-    json.dump(game_data, f, indent=2)
+    # Por ahora no guardamos el juego
+    game_data['game'] = save_state(game.current_scene, game.inventory, data)
+    with open('games/savedState.json', 'w') as f:
+        json.dump(game_data, f, indent=2)

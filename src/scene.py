@@ -15,15 +15,17 @@ class Scene:
         self.main_character = None
         self.walkable_path = None
 
-        self.walkable_graph = create_walkable_graph(data['walkableAreas'], data['forbiddenAreas'])
+        self.walkable_graph = create_walkable_graph(self.walkable_areas, self.forbidden_areas)
 
     def add_walkable_area(self, polygon):
         """Añade un área caminable definida por un polígono."""
         self.walkable_areas.append(polygon)
+        self.walkable_graph = create_walkable_graph(self.walkable_areas, self.forbidden_areas)
         
     def add_forbidden_area(self, polygon):
         """Añade un área pohibida definida por un polígono."""
         self.forbidden_areas.append(polygon)
+        self.walkable_graph = create_walkable_graph(self.walkable_areas, self.forbidden_areas)
     
     def add_object(self, game_object, position=None):
         """Añade un objeto a la escena en una posición específica."""
@@ -73,7 +75,6 @@ class Scene:
     
     def handle_click(self, position, button, selected_object):
         x,y = position
-        object_clicked = False
         if button == 1: 	# Left click
             for char in self.characters:
                 if char.area_includes(x, y):

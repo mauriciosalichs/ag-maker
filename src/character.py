@@ -1,4 +1,4 @@
-import pygame, os
+import os
 from src.utils import *
 
 # Colors for dialogue
@@ -16,7 +16,8 @@ class Character:
         self.description = data['description'] if 'description' in data.keys() else 'Nada interesante que comentar.'
         self.currentState = data['currentState'] if 'currentState' in data.keys() else 'idle'
         self.dialogue_color = eval(data['dialogueColor']) if 'dialogueColor' in data.keys() else BLACK
-        self.sprites = self.load_sprites(data["spritesDirs"][self.currentState])
+        self.sprite_dirs = data["spritesDirs"]
+        self.sprites = self.load_sprites(self.sprite_dirs[self.currentState])
         self.goodbyePhrases = data['goodbyePhrases'] if 'goodbyePhrases' in data.keys() else ['Adiós.']
         self.dialogue_data = dialogues
         self.current_frame = 0
@@ -26,10 +27,10 @@ class Character:
         self.target_position = self.position  # Posición objetivo (a dónde se moverá)
         self.speed = 0.5  # Velocidad de movimiento del personaje
         self.is_moving = False
+        self.currentState = 'idle'
         self.walking_path = []
-        self.frame_delay = 10  # Cuántos frames de actualización se esperan antes de cambiar el sprite
+        self.frame_delay = data['frameDelay'] if 'frameDelay' in data.keys() else 10
         self.frame_counter = 0  # Contador de frames
-        self.face_left = True
 
         self.font = pygame.font.SysFont("Courier", 24, bold=True)
         self.text_surface = self.font.render(self.name, True, (0, 0, 0))
@@ -86,10 +87,17 @@ class Character:
     def draw(self, screen):
         """Dibuja el personaje en la pantalla usando su referencia inferior central."""
         self.image = self.sprites[self.current_frame]
+        self.rect = self.image.get_rect(midbottom=self.position)
         screen.blit(self.image, self.rect.topleft)
     
     def update(self):
         """Actualiza la posición del personaje y la animación."""
+        # Cambiar al siguiente frame de la animación con retraso
+        self.frame_counter += 1
+        if self.frame_counter >= self.frame_delay:
+            self.current_frame = (self.current_frame + 1) % len(self.sprites)
+            self.frame_counter = 0
+
         if self.is_moving:
             direction = self.target_position - self.position
             distance = direction.length()
@@ -100,11 +108,6 @@ class Character:
                 self.position += direction
                 self.rect = self.image.get_rect(midbottom=self.position)  # Rectángulo de colisión
 
-                # Cambiar al siguiente frame de la animación con retraso
-                self.frame_counter += 1
-                if self.frame_counter >= self.frame_delay:
-                    self.current_frame = (self.current_frame + 1) % len(self.sprites)
-                    self.frame_counter = 0
             else:
                 if self.walking_path:
                     position = self.walking_path[0]
@@ -115,22 +118,30 @@ class Character:
                     self.position = [self.target_position.x, self.target_position.y]
                     self.rect = self.image.get_rect(midbottom=self.position)  # Rectángulo de colisión
                     self.is_moving = False
-                    self.current_frame = 0  # Frame estático inicial
+                    self.change_state('idle')
                     self.game.current_action_finished()
-    
+
+    def add_conv_id(self, id_to_remove):
+        for value in self.dialogue_data.values():
+            for resp in value['responses']:
+                if 'textHiddenID' in resp.keys() and resp['textHiddenID'] == id_to_remove:
+                    del resp['textHiddenID']
+        self.game.current_action_finished()
+
     def move_to(self, position):
         """Mueve el personaje a una posición dada usando como referencia el centro inferior."""
         self.target_position = pygame.Vector2(position)
         self.is_moving = True
-        # Reflejar la imagen si el clic está a la izquierda o derecha del personaje
-        if (self.face_left and self.target_position[0] < self.position[0]) or (not self.face_left and self.target_position[0] > self.position[0]):
+        self.change_state('walkingLeft')
+        # Reflejar la imagen si el camino está a la izquierda o derecha del personaje
+        if self.target_position[0] < self.position[0]:
             self.sprites = [pygame.transform.flip(sprite, True, False) for sprite in self.sprites]
-            self.face_left = not self.face_left
 
-    def change_state(self, data, newState):
+    def change_state(self, newState):
         self.currentState = newState
         try:
-            self.sprites = self.load_sprites(data["spritesDirs"][self.currentState])
+            self.sprites = self.load_sprites(self.sprite_dirs[self.currentState])
+            self.current_frame = 0
         except:
             print("not a drawable state")
 

@@ -5,9 +5,10 @@
       "Que muchachote mas apuesto."
     ],
     "states": [
+      "idle",
       "walkingLeft"
     ],
-    "currentState": "walkingLeft",
+    "currentState": "idle",
     "dialogueColor": "BLACK",
     "goodbyePhrases":["¡Hasta la vista!","¡Adiós!","Debo irme, dejé el pollo en el horno.","Me encantaría seguir hablando, pero..."]
   },
@@ -20,6 +21,7 @@
       "idle"
     ],
     "currentState": "idle",
-    "dialogueColor": "(70,70,255)"
+    "dialogueColor": "(70,70,255)",
+    "frameDelay": 20
   }
 }}

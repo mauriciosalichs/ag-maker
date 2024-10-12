@@ -1,28 +1,28 @@
-import pygame
-from src.debug import Debug
 from src.scene import Scene
-from src.inventory import Inventory
+from src.character import Character
+from src.object import Object
 from src.conversation import Conversation
 from src.utils import *
 
 # Main game class
 class Game:
-    def __init__(self, camera_width=600, camera_height=600, cursor_img_path=None):
+    def __init__(self, data, s_data, ch_data, o_data, cv_data, cursor_img_path=None):
         pygame.init()
         pygame.mouse.set_visible(False)
-        self.main_text_font = pygame.font.SysFont("Courier", 24, bold=True)
+        self.main_text_font = pygame.font.SysFont("Courier", 18, bold=True)
         self.clock = pygame.time.Clock()
 
         self.mouse_pos = None
         self.mouse_camera_pos = None
-        self.camera_width = camera_width
-        self.camera_height = camera_height
+        self.camera_width = data["cameraWidth"]
+        self.camera_height = data["cameraHeight"]
 
         self.screen = pygame.display.set_mode((self.camera_width, self.camera_height))
         self.camera = pygame.Rect(0, 0, self.camera_width, self.camera_height)
         self.cursor = pygame.image.load(cursor_img_path).convert_alpha() if cursor_img_path else None
 
         self.current_scene = None
+        self.current_scene_id = data['currentScene']
         self.world_width = None
         self.world_height = None
         self.world = None
@@ -33,6 +33,12 @@ class Game:
         self.inventory = None
         self.inventory_is_open = False
         self.grabbed_object = None
+
+        # Store data of everytinh
+        self.scenes_data = s_data
+        self.characters_data = ch_data
+        self.objects_data = o_data
+        self.conversations_data = cv_data
 
         # Subtitles of dialogue
         self.current_color = None
@@ -66,11 +72,23 @@ class Game:
     def set_inventory(self, inventory):
         self.inventory = inventory
 
-    def set_scene(self, scene):
-        self.current_scene = scene
-        self.world_width = scene.width
-        self.world_height = scene.height
+    def set_scene(self, scene=''):
+        if scene == '': scene = self.current_scene_id
+        current_scene_data = self.scenes_data[scene]
+        self.current_scene = Scene(self, scene, current_scene_data)
+        for od in current_scene_data["objects"]:
+            object_data = self.objects_data[od[0]]
+            self.current_scene.add_object(Object(self, od[0], object_data), od[1])
+        for cd in current_scene_data["characters"]:
+            character_data = self.characters_data[cd[0]]
+            char_dialogues = self.conversations_data[cd[0]] if cd[0] in self.conversations_data.keys() else None
+            self.current_scene.add_character(Character(self, cd[0], character_data, char_dialogues), cd[1])
+
+        self.world_width = self.current_scene.width
+        self.world_height = self.current_scene.height
         self.world = pygame.Surface((self.world_width, self.world_height))
+        self.current_action_finished()
+
 
     # Define some main actions game-wide
 
@@ -91,7 +109,7 @@ class Game:
     def check_for_actions_about_conversation(self, char_id, text_id):
         return self.actions.checkForConversationId(char_id, text_id)
 
-    # TODO: def playAnimation(self, animation):
+    # TODO: def play_animation(self, animation):
 
     # Show a line of dialogue as a subtitle
 
@@ -157,6 +175,8 @@ class Game:
             cursor_rect = self.cursor.get_rect(center=(mouse_x, mouse_y)) if self.cursor else None
 
             if not (self.action_in_place or self.choose_response):
+                if keys[pygame.K_SPACE]:
+                    self.start_time = 0
                 if keys[pygame.K_ESCAPE]:
                         running = False
                 if keys[pygame.K_d]:

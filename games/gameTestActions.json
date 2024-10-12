@@ -2,21 +2,22 @@
 
   "__checkpoints": "This register will allow us to know what has been accomplished in the game so far",
   "checkpoints" : [
-    "gameStarted"
+    "gameStarted",
+    "runningCar"
     ],
 
   "__grabRules": ["Rules to grab an object. The structure is: [objectId, matchedCheckpoints, checkpoints]",
     "where the checkpoints are obtained and they launch something (see triggers) if that checkpoint",
     "has a trigger associated. (ok means direct take) Any object not appearing in the list, you can take it."],
   "grabRules": [
-    ["tenisBall",["architectHasSomething"],"ok"],
-    ["tenisBall",[],"architectAskForSomething"]
+    ["carKeys",["architectHasSomething"],"ok"],
+    ["carKeys",[],"architectAskForSomething"]
   ],
   
   "__speakRules": ["Rules when a character speaks about something specific. The structure is: [charId, textId,",
   	" matchedCheckpoints, checkpoint] where the triggers are checkpoints obtained, with an associated trigger."],
   "speakRules": [
-    ["manny","identityReflection",[],"mannyDisapears"]
+    ["manny","convinced",[],"architectHasSomething"]
   ],
 
   "__useRules": ["Rules to use an object. The structure is: [objectId, matchedCheckpoints, triggers] where ",
@@ -31,20 +32,22 @@
     "Otherwise if its a proper checkpoint, adds it as obtained and launches (if any) associated trigger."],
   "useWithTargetRules": [
     ["myNotebook","streetCar",[],"nuNo tengo nada que escribir sobre este coche."],
-    ["tenisBall","streetCar",[],"runningCar"]
+    ["carKeys","streetCar",[],"runningCar"]
   ],
 
   "__triggers": ["Links checkpoints with actions to be performed when we get them. This actions can be from",
       "changing the attributes of a target object (character, object, scene..) to launch animations, or even",
       "moving to another scene (for example [game,change_scene,playaBogatell] ) "],
   "triggers" : {
-    "architectAskForSomething" : [["C_manny","move_to",[706,685]],
-                                  ["C_manny","speak","No puedes cojer mi pelota."],
-                                  ["C_manny","move_to",[762,658]]],
-    "runningCar" : [["C_mainCharacter","speak","OH. Era la llave de ESTE coche."],
+    "architectAskForSomething" : [["C_manny","add_conv_id","askForKeys"],
+                                  ["C_manny","move_to",[706,685]],
+                                  ["C_manny","speak","No puedes cojer mis llaves."],
+                                  ["C_manny","move_to",[649,716]]],
+    "architectHasSomething" : [["C_manny","move_to",[700,1300]],
+                                ["C_mainCharacter","speak","Vaya... Eso ha sido fácil."]],
+    "runningCar" : [["C_mainCharacter","speak","OH. Si que era la llave de ESTE coche."],
                     ["O_streetCar","change_name","Coche encendido."]],
-    "carStartRunning" : [["game","playAnimation","getInsideCar"],
-                         ["game","change_scene","barcelonaMap"]],
-    "mannyDisapears" : [["C_manny","move_to",[1000,1300]]]
+    "carStartRunning" : [["C_mainCharacter","speak","Vayamos a dar una vuelta."],
+                         ["game","set_scene","parcGuell"]]
   }
 }}

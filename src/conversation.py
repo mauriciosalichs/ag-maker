@@ -11,14 +11,18 @@ class Conversation:
         self.current_id = 'start'
         self.options_rects = []
 
-        self.font = pygame.font.SysFont("Courier", 24, bold=True)
+        self.font = pygame.font.SysFont("Courier", 16, bold=True)
 	
     def answer(self):
         self.game.check_for_actions_about_conversation(self.character.id, self.current_id)
         if self.dialogue_root[self.current_id]['responses']:
             self.game.choose_response = True
             for response in self.dialogue_root[self.current_id]['responses']:
+                if 'textHiddenID' in response.keys():
+                    print(response['textHiddenID'])
+                    continue
                 opt = response['text']
+                print(opt)
                 t_surf = self.font.render(opt, True, (0, 0, 0))
                 t_rect = t_surf.get_rect()
                 self.options_rects.append((t_surf, t_rect))

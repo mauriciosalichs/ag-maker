@@ -7,8 +7,8 @@
         [[[238, 500],[239, 473],[276, 473],[271, 519]],
           [[461, 610], [714, 615], [716, 520], [579, 469], [453, 502]],
           [[658, 707],[658, 693],[694, 691],[680, 715]]],
-      "objects": [["streetLamp",[330,500]],["streetCar",[580,600]],["streetTent",[793,432]],["tenisBall",[669,716]],["sf",""]],
-      "characters": [["mainCharacter",[409,421]],["manny",[762,658]]]
+      "objects": [["streetLamp",[330,500]],["streetCar",[580,600]],["streetTent",[793,432]],["carKeys",[762,658]],["sf",""]],
+      "characters": [["mainCharacter",[420,420]],["manny",[649,716]]]
     },
     "parcGuell": {
       "name": "Parc Guell",

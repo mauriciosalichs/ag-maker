@@ -41,17 +41,17 @@
     ],
     "properties": []
   },
-  "tenisBall": {
-    "img": "Pelota.png",
-    "name": "Pelota",
+  "carKeys": {
+    "img": "output.png",
+    "name": "Llaves de auto",
     "description": [
-      "Me recuerda a la pelota que tenía mi tata."
+      "¿Serán del coche ahí aparcado?"
     ],
     "properties": [
       "grabbable"
     ],
     "grabDescription": [
-      "Nunca se sabe cuándo podré necesitar algo que rebote."
+      "Ahora podré ver si funciona."
     ]
   },
   "sf": {
