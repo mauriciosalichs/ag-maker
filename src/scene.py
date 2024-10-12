@@ -103,11 +103,11 @@ class Scene:
     
     def gen_walkable_path(self, end_position): # Por ahora, solo consideraremos un unico poligono caminable
         """Genera un camino hacia un punto dentro del área caminable."""
-        polygon = self.walkable_areas[0] # for polygon in self.walkable_areas:
+        polygon = self.walkable_areas[0] # for polygon in self.walkable_areas...
         if point_inside_polygon(end_position, polygon):
             for forb_pol in self.forbidden_areas:
                 if point_inside_polygon(end_position, forb_pol):
                     return None
-            polygons = self.walkable_areas + self.forbidden_areas
-            return calculate_path(self.main_character.position, end_position, polygons)
+            return calculate_path(tuple(self.main_character.position), tuple(end_position),
+                                  self.walkable_graph, self.walkable_areas, self.forbidden_areas)
         return None

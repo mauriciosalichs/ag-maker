@@ -1,4 +1,5 @@
-import math, pygame
+import math, heapq, pygame, time
+from shapely.geometry import LineString, Polygon
 
 # Returns new (image, rect)
 def rescale_to_rect(img, rect=None, size=130):
@@ -17,35 +18,8 @@ def rescale_to_rect(img, rect=None, size=130):
 
 #-------------------------
 
-def reverse_path(original_list, sublist):
-    # Get the indices of the start and end of the sublist in the original list
-    start_index = original_list.index(sublist[0])
-    end_index = original_list.index(sublist[-1])
-    # Create the reverse path outside of the sublist
-    reverse_path = []
-    # Check if the sublist goes forward or backward
-    if (start_index < end_index) or (start_index == len(original_list) - 1 and end_index == 0):
-        # The sublist is in forward order, go backwards in the list
-        i = (start_index - 1) % len(original_list)
-        while i != end_index:
-            reverse_path.append(original_list[i])
-            i = (i - 1) % len(original_list)
-    else:
-        # The sublist is in reverse order, go forwards in the list
-        i = (start_index + 1) % len(original_list)
-        while i != end_index:
-            reverse_path.append(original_list[i])
-            i = (i + 1) % len(original_list)
-    return reverse_path
-
 def euclidean_distance(point1, point2):
     return math.sqrt((point2[0] - point1[0])**2 + (point2[1] - point1[1])**2)
-
-def total_length(points):
-    total = 0
-    for i in range(len(points) - 1):
-        total += euclidean_distance(points[i], points[i + 1])
-    return total
 
 def distance_point_line(x, y, p1, p2):
     x1, y1 = p1
@@ -73,73 +47,82 @@ def point_inside_polygon(point, polygon):
             inside = not inside
     return inside
 
-def line_intersection(p1, p2, p3, p4):
-    x1,y1 = p1
-    x2,y2 = p2
-    x3,y3 = p3
-    x4,y4 = p4
-    denom = (y4-y3)*(x2-x1) - (x4-x3)*(y2-y1)
-    if denom == 0: # parallel
-        return None
-    ua = ((x4-x3)*(y1-y3) - (y4-y3)*(x1-x3)) / denom
-    if ua < 0 or ua > 1: # out of range
-        return None
-    ub = ((x2-x1)*(y1-y3) - (y2-y1)*(x1-x3)) / denom
-    if ub < 0 or ub > 1: # out of range
-        return None
-    x = x1 + ua * (x2-x1)
-    y = y1 + ua * (y2-y1)
-    return (x,y)
+# PATH GENERATION
 
-def line_intersects_poly(start_pos, end_pos, polygon):
-    res = []
-    for i in range(len(polygon)):
-        p1 = polygon[i]
-        p2 = polygon[(i + 1) % len(polygon)]
-        pi = line_intersection(start_pos, end_pos, p1, p2)
-        res.append(pi) if pi else None
-    return res
+def line_inside_polygon(l, p):
+    line = LineString(l)
+    polygon = Polygon(p)
+    if line.intersects(polygon):
+        intersection = line.intersection(polygon)
+        if not polygon.boundary.contains(intersection):
+            return True
+    return False
 
-# Simple straight resulting path that stops on first obstacle
-def calculate_path(start_pos, end_pos, forb_pols):
-    current_length = euclidean_distance(start_pos, end_pos)
-    final_end_pos = end_pos
-    int_path = lambda x: line_intersects_poly(start_pos, end_pos, x)
-    for r in  [i for res in map(int_path, forb_pols) for i in res]:
-        l = euclidean_distance(start_pos, r)
-        if l < current_length:
-            l = current_length
-            final_end_pos = r
-    return [start_pos,final_end_pos]
+def line_outside_polygon(l, p):
+    line = LineString(l)
+    polygon = Polygon(p)
+    if line.intersects(polygon):
+        intersection = line.intersection(polygon)
+        outside_part = line.difference(intersection)
+        if not outside_part.is_empty:
+            return True
+    return False
 
-# TODO: This needs A LOT of improvement; for now, we will not use it
-# Change completely for the following strategy:
-# When creating the scene, function creaateWalkableGraph(walk-pol, forb_pols)
-# sets self.walkable_graph, and when we gen the path, we add start_pos and end_pos
-# to the graph, and search for the dijkstra path, or return None if not possible.
+def is_valid_line(l, wa, fas):
+    for poly in wa:
+        if line_outside_polygon(l,poly):
+            return False
+    for poly in fas:
+        if line_inside_polygon(l, poly):
+            return False
+    return True
 
-def create_walkable_graph(self, wa, fas):
-    return None
+def add_point_to_graph(graph,point,wa,fas):
+    graph[point] = {}
+    for p in graph:
+        if is_valid_line((point, p), wa, fas):
+            distance = euclidean_distance(point, p)
+            graph[point][p] = distance
+            graph[p][point] = distance
+    return graph
 
-def __calculate_path(start_pos, end_pos, forb_pols):
-    intersected_polygon = None
-    for polygon_coords in forb_pols:
-        ii = line_intersects_poly((start_pos, end_pos), polygon_coords)
-        if len(ii) == 0:
+def create_walkable_graph(wa, fas):
+    graph = {}
+    for poly in wa+fas:
+        for p in poly:
+            graph = add_point_to_graph(graph,tuple(p),wa,fas)
+    return graph
+
+def calculate_path(start_pos, end_pos, graph, wa, fas):
+    graph = add_point_to_graph(graph,start_pos,wa,fas)
+    graph = add_point_to_graph(graph, end_pos, wa, fas)
+    # Dijkstra
+    queue = [(0, start_pos)]
+    distances = {vertex: float('infinity') for vertex in graph}
+    distances[start_pos] = 0
+    shortest_path = {vertex: None for vertex in graph}
+    while queue:
+        current_distance, current_vertex = heapq.heappop(queue)
+        # If the popped vertex is the end point, we're done
+        if current_vertex == end_pos:
+            break
+        if current_distance > distances[current_vertex]:
             continue
-        if intersected_polygon:
-            return None
-        # int_points = [polygon_coords[ii[0]],polygon_coords[ii[-1]]]
-        intersected_polygon = (ii[0], ii[1], polygon_coords)
-    if intersected_polygon:
-        (p0, p1, polygon_coords) = intersected_polygon
-        reverse = euclidean_distance(start_pos, polygon_coords[p0]) < \
-                  euclidean_distance(start_pos, polygon_coords[p1])
-        res = polygon_coords[p0:p1] if reverse else polygon_coords[p1:p0:-1]
-        path1 = [start_pos] + res + [end_pos]
-        path2 = [start_pos] + reverse_path(polygon_coords,res) + [end_pos]
-        if total_length(path1) > total_length(path2):
-            return path2
-        else:
-            return path1
-    return [start_pos,end_pos]
+        # Explore neighbors
+        for neighbor, weight in graph[current_vertex].items():
+            distance = current_distance + weight
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                heapq.heappush(queue, (distance, neighbor))
+                shortest_path[neighbor] = current_vertex
+
+    # If we never reached the 'end' node, return None (no path found)
+    if distances[end_pos] == float('infinity'):
+        return None
+    # Reconstruct the shortest path
+    path = []
+    while end_pos is not None:
+        path.append(end_pos)
+        end_pos = shortest_path[end_pos]
+    path.reverse()
+    return path

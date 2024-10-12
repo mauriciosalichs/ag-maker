@@ -65,6 +65,12 @@ class Debug:
             self.game.screen.blit(text_surface, text_rect)
             y_offset += self.font.size(line)[1] + line_spacing  # Siguiente línea
 
+    def draw_graph(self):
+        graph = self.game.current_scene.walkable_graph
+        for point in graph:
+            for neighbor in graph[point]:
+                pygame.draw.line(self.game.screen, (127,127,127), point, neighbor, 1)
+
     def load_imgs(self):
         pygame.draw.rect(self.game.screen, (0, 0, 0), self.rect)
         text_adding_objects_rect = self.text_adding_objects.get_rect(center=self.rect.center)
@@ -241,6 +247,7 @@ class Debug:
                 rect = scaled_image.get_rect(midbottom=(self.mouse_x,self.mouse_y))
                 self.game.screen.blit(scaled_image, rect.topleft)
 
+            self.draw_graph()
             if self.tmp_polygon:
                 pygame.draw.polygon(self.game.screen, (255,0,0), self.tmp_polygon, 3)
             	
