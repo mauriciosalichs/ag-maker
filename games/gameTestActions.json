@@ -2,8 +2,7 @@
 
   "__checkpoints": "This register will allow us to know what has been accomplished in the game so far",
   "checkpoints" : [
-    "gameStarted",
-    "runningCar"
+    "gameStarted" 
     ],
 
   "__grabRules": ["Rules to grab an object. The structure is: [objectId, matchedCheckpoints, checkpoints]",
