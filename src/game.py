@@ -41,12 +41,10 @@ class Game:
         self.conversations_data = cv_data
 
         # Subtitles of dialogue
-        self.current_color = None
+        self.current_line = None
         self.remaining_lines = None
-        self.text_duration = 2000
-        self.start_time = None
-        self.text_surface = None
-        self.text_rect = None
+        self.current_color = None
+        self.frame_delay = 10
 
         # Things still not implemented
         self.conversation = None
@@ -71,6 +69,20 @@ class Game:
 
     def set_inventory(self, inventory):
         self.inventory = inventory
+
+    def change_scene(self, scene):
+        clock = pygame.time.Clock()
+        fade_surface = pygame.Surface((self.camera_width, self.camera_height))
+        fade_surface.fill((0,0,0))
+        alpha = 0
+        while alpha < 200:
+            # Increase alpha value to make the screen darker
+            fade_surface.set_alpha(alpha)
+            self.screen.blit(fade_surface, (0, 0))
+            pygame.display.flip()
+            alpha += 1
+            clock.tick(60)  # Control the speed of the fade effect
+        self.set_scene(scene)
 
     def set_scene(self, scene=''):
         if scene == '': scene = self.current_scene_id
@@ -113,18 +125,12 @@ class Game:
 
     # Show a line of dialogue as a subtitle
 
-    def show_line(self, line, color=(0,0,0)):
-        self.start_time = pygame.time.get_ticks()
-        self.text_surface = self.main_text_font.render(line, True, color)
-        self.text_rect = self.text_surface.get_rect()
-        self.text_rect.midbottom = (self.camera_width / 2, self.camera_height - 50)
-
     def show_text(self, text, color=(0,0,0)):
         if type(text) == str:
             text = [text]
+        self.current_line = text[0]
         self.remaining_lines = text[1:]
         self.current_color = color
-        self.show_line(text[0], color)
 
     # Handle mouse click and redirect to appropiate component
 
@@ -144,6 +150,8 @@ class Game:
     def run(self):
         # Main Loop
         running = True
+        text_rect = None
+        tmp_i,tmp_frame = 0,0 # Indexes for subtitles
         while running:
             keys = pygame.key.get_pressed()
             mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -175,8 +183,8 @@ class Game:
             cursor_rect = self.cursor.get_rect(center=(mouse_x, mouse_y)) if self.cursor else None
 
             if not (self.action_in_place or self.choose_response):
-                if keys[pygame.K_SPACE]:
-                    self.start_time = 0
+                if keys[pygame.K_SPACE] and self.current_line:
+                    tmp_i = 1000
                 if keys[pygame.K_ESCAPE]:
                         running = False
                 if keys[pygame.K_d]:
@@ -215,20 +223,28 @@ class Game:
                 self.inventory.show()
 
             # If there is text to show as subtitles, we show it now
-            if self.text_surface:
-                if pygame.time.get_ticks() - self.start_time < self.text_duration:
-                    background_rect = pygame.Rect(self.text_rect.left - 10, self.text_rect.top - 5,
-                                                  self.text_rect.width + 20, self.text_rect.height + 10)
-                    pygame.draw.rect(self.screen, (255, 255, 255, 50), background_rect)
-                    #pygame.draw.rect(self.screen, (255, 0, 0), background_rect, 2)
-                    self.screen.blit(self.text_surface, self.text_rect)
+            if self.current_line:
+                if tmp_i < len(self.current_line)*1.3:
+                    if tmp_i == 0 or tmp_frame == self.frame_delay:
+                        text_surface = self.main_text_font.render(self.current_line[:tmp_i], True, self.current_color)
+                        text_rect = text_surface.get_rect()
+                        text_rect.midbottom = (self.camera_width / 2, self.camera_height - 50)
+                        background_rect = pygame.Rect(text_rect.left - 10, text_rect.top - 5,
+                                                      text_rect.width + 20, text_rect.height + 10)
+                        tmp_i+=1
+                        tmp_frame=0
+                    if background_rect: pygame.draw.rect(self.screen, (255, 255, 255, 50), background_rect)
+                    if text_rect: self.screen.blit(text_surface, text_rect)
+                    tmp_frame+=1
                 else:
+                    tmp_i = 0
                     if self.remaining_lines:
-                        line = self.remaining_lines[0]
+                        self.current_line = self.remaining_lines[0]
                         self.remaining_lines = self.remaining_lines[1:]
-                        self.show_line(line, self.current_color)
+                        self.start_time = pygame.time.get_ticks()
                     else:
-                        self.text_surface = None
+                        self.current_line = None
+                        self.start_time = None
                         self.current_action_finished()
 
             # If there is a grabbed object, we show it now

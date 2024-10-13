@@ -12,11 +12,11 @@
     },
     "parcGuell": {
       "name": "Parc Guell",
-      "backgroundImg": "output.jpg",
+      "backgroundImg": "parc-guell.jpg",
       "walkableAreas": [[[866, 1015], [177, 1015], [118, 937], [8, 808], [4, 647], [25, 589], [60, 593], [27, 659], [28, 797], [194, 888], [247, 859], [242, 788], [228, 771], [293, 741], [383, 735], [393, 782], [463, 814], [634, 809], [822, 845], [919, 885]]],
       "forbiddenAreas":
-        [],
-      "objects": [],
-      "characters": [["mainCharacter",[356,783]]]
+        [[[1008, 905], [719, 898], [720, 799]]],
+      "objects": [["streetCar",[862,900]]],
+      "characters": [["mainCharacter",[700,900]]]
     }
 }}

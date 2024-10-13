@@ -22,7 +22,6 @@ class Conversation:
                     print(response['textHiddenID'])
                     continue
                 opt = response['text']
-                print(opt)
                 t_surf = self.font.render(opt, True, (0, 0, 0))
                 t_rect = t_surf.get_rect()
                 self.options_rects.append((t_surf, t_rect))
