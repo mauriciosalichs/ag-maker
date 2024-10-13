@@ -45,7 +45,8 @@
     "architectHasSomething" : [["C_manny","move_to",[700,1300]],
                                 ["C_mainCharacter","speak","Vaya... Eso ha sido fácil."]],
     "runningCar" : [["C_mainCharacter","speak","OH. Si que era la llave de ESTE coche."],
-                    ["O_streetCar","change_name","Coche encendido."]],
+                    ["O_streetCar","change_name","Coche encendido."],
+                    ["O_streetCar","change_description",["¡Mi nuevo coche para moverme por Barcelona!"]]],
     "carStartRunning" : [["C_mainCharacter","speak","Vayamos a dar una vuelta."],
                          ["game","change_scene","parcGuell"]]
   }

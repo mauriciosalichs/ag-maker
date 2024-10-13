@@ -67,7 +67,7 @@ class Character:
         self.game.show_text(self.description)
 
     def use(self, grabbed_object):
-        if euclidean_distance(self.game.current_scene.main_character.position, self.position) > 70:
+        if euclidean_distance(self.game.current_scene.main_character.position, self.position) > 250:
             self.game.show_text(f"Estoy demasiado lejos.")
         elif grabbed_object and not self.game.use_object_with_target(self.id, grabbed_object.id):
             self.game.show_text("No se porque haría eso.")

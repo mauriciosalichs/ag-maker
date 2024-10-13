@@ -34,8 +34,14 @@ class Object:
 
     def change_name(self, name):
         self.name = name
+        self.game.objects_data[self.id]['name'] = name
         self.text_surface = self.font.render(self.name, True, (0, 0, 0))
         self.text_rect = self.text_surface.get_rect()
+        self.game.current_action_finished()
+
+    def change_description(self, description):
+        self.description = description
+        self.game.objects_data[self.id]['description'] = description
         self.game.current_action_finished()
 
     def area_includes(self, x, y):

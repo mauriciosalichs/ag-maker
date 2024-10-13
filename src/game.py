@@ -6,7 +6,8 @@ from src.utils import *
 
 pygame.mixer.init()
 sounds = dict()
-sounds['sf'] = pygame.mixer.Sound('assets/sounds/sf.wav')
+sounds['sagradaFamilia'] = pygame.mixer.Sound('assets/sounds/sf.mp3')
+sounds['parcGuell'] = pygame.mixer.Sound('assets/sounds/pc.mp3')
 sounds['000'] = pygame.mixer.Sound('assets/sounds/000.wav')
 sounds['7070255'] = pygame.mixer.Sound('assets/sounds/7070255.wav')
 
@@ -27,6 +28,7 @@ class Game:
         self.camera = pygame.Rect(0, 0, self.camera_width, self.camera_height)
         self.cursor = pygame.image.load(cursor_img_path).convert_alpha() if cursor_img_path else None
 
+        self.scenes = dict()
         self.current_scene = None
         self.current_scene_id = data['currentScene']
         self.world_width = None
@@ -79,11 +81,13 @@ class Game:
         self.inventory = inventory
 
     def change_scene(self, scene):
+        sounds[self.current_scene_id].stop()
+        self.scenes[self.current_scene_id] = self.current_scene
         clock = pygame.time.Clock()
         fade_surface = pygame.Surface((self.camera_width, self.camera_height))
         fade_surface.fill((0,0,0))
         alpha = 0
-        while alpha < 200:
+        while alpha < 100:
             # Increase alpha value to make the screen darker
             fade_surface.set_alpha(alpha)
             self.screen.blit(fade_surface, (0, 0))
@@ -94,21 +98,26 @@ class Game:
 
     def set_scene(self, scene=''):
         if scene == '': scene = self.current_scene_id
-        current_scene_data = self.scenes_data[scene]
-        self.current_scene = Scene(self, scene, current_scene_data)
-        for od in current_scene_data["objects"]:
-            object_data = self.objects_data[od[0]]
-            self.current_scene.add_object(Object(self, od[0], object_data), od[1])
-        for cd in current_scene_data["characters"]:
-            character_data = self.characters_data[cd[0]]
-            char_dialogues = self.conversations_data[cd[0]] if cd[0] in self.conversations_data.keys() else None
-            self.current_scene.add_character(Character(self, cd[0], character_data, char_dialogues), cd[1])
+        if scene in self.scenes.keys():
+            self.current_scene = self.scenes[scene]
+        else:
+            self.current_scene_id = scene
+            current_scene_data = self.scenes_data[scene]
+            self.current_scene = Scene(self, scene, current_scene_data)
+            for od in current_scene_data["objects"]:
+                object_data = self.objects_data[od[0]]
+                self.current_scene.add_object(Object(self, od[0], object_data), od[1])
+            for cd in current_scene_data["characters"]:
+                character_data = self.characters_data[cd[0]]
+                char_dialogues = self.conversations_data[cd[0]] if cd[0] in self.conversations_data.keys() else None
+                self.current_scene.add_character(Character(self, cd[0], character_data, char_dialogues), cd[1])
+            self.scenes[scene] = self.current_scene
 
         self.world_width = self.current_scene.width
         self.world_height = self.current_scene.height
         self.world = pygame.Surface((self.world_width, self.world_height))
         self.current_action_finished()
-        sounds['sf'].play(loops=-1)
+        sounds[self.current_scene_id].play(loops=-1)
 
         # Define some main actions game-wide
 
