@@ -4,6 +4,12 @@ from src.object import Object
 from src.conversation import Conversation
 from src.utils import *
 
+pygame.mixer.init()
+sounds = dict()
+sounds['sf'] = pygame.mixer.Sound('sounds/sf.wav')
+sounds['000'] = pygame.mixer.Sound('sounds/000.wav')
+sounds['7070255'] = pygame.mixer.Sound('sounds/7070255.wav')
+
 # Main game class
 class Game:
     def __init__(self, data, s_data, ch_data, o_data, cv_data, cursor_img_path=None):
@@ -100,9 +106,9 @@ class Game:
         self.world_height = self.current_scene.height
         self.world = pygame.Surface((self.world_width, self.world_height))
         self.current_action_finished()
+        sounds['sf'].play(loops=-1)
 
-
-    # Define some main actions game-wide
+        # Define some main actions game-wide
 
     def grab_object(self, obj):
         if self.actions.allowGrab(obj.id):
@@ -233,6 +239,9 @@ class Game:
                                                       text_rect.width + 20, text_rect.height + 10)
                         tmp_i+=1
                         tmp_frame=0
+                        if tmp_i%3==0 and tmp_i < len(self.current_line):
+                            col = ''.join(map(str, self.current_color))
+                            sounds[col].play()
                     if background_rect: pygame.draw.rect(self.screen, (255, 255, 255, 50), background_rect)
                     if text_rect: self.screen.blit(text_surface, text_rect)
                     tmp_frame+=1
