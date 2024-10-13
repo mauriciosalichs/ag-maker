@@ -6,9 +6,9 @@ from src.utils import *
 
 pygame.mixer.init()
 sounds = dict()
-sounds['sf'] = pygame.mixer.Sound('sounds/sf.wav')
-sounds['000'] = pygame.mixer.Sound('sounds/000.wav')
-sounds['7070255'] = pygame.mixer.Sound('sounds/7070255.wav')
+sounds['sf'] = pygame.mixer.Sound('assets/sounds/sf.wav')
+sounds['000'] = pygame.mixer.Sound('assets/sounds/000.wav')
+sounds['7070255'] = pygame.mixer.Sound('assets/sounds/7070255.wav')
 
 # Main game class
 class Game:
@@ -35,6 +35,8 @@ class Game:
 
         self.debug = None
         self.debug_running = False
+        self.show_help = False
+        self.help_img = pygame.image.load('assets/help.png').convert_alpha()
 
         self.inventory = None
         self.inventory_is_open = False
@@ -188,7 +190,9 @@ class Game:
             self.mouse_pos = (mouse_x + self.camera.x, mouse_y + self.camera.y)
             cursor_rect = self.cursor.get_rect(center=(mouse_x, mouse_y)) if self.cursor else None
 
-            if not (self.action_in_place or self.choose_response):
+            if keys[pygame.K_h]:
+                self.show_help = not self.show_help
+            if not (self.action_in_place or self.choose_response or self.show_help):
                 if keys[pygame.K_SPACE] and self.current_line:
                     tmp_i = 1000
                 if keys[pygame.K_ESCAPE]:
@@ -213,7 +217,7 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                elif event.type == pygame.MOUSEBUTTONDOWN:
+                elif event.type == pygame.MOUSEBUTTONDOWN and not self.show_help:
                     self.handle_click(event.button)
                 
             # We update the scene and then draw everything in a specific order
@@ -281,6 +285,10 @@ class Game:
             # We show response options, if any
             if self.choose_response:
                 self.conversation.draw_options(self.screen)
+
+            if self.show_help:
+                img_rect = self.help_img.get_rect(center=(self.camera_width//2,self.camera_height//2))
+                self.screen.blit(self.help_img, img_rect)
 
             if self.cursor: self.screen.blit(self.cursor, cursor_rect)
             pygame.display.flip()

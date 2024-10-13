@@ -1,6 +1,4 @@
 from src.game import Game
-from src.scene import Scene
-from src.character import Character
 from src.object import Object
 from src.debug import Debug
 from src.inventory import Inventory
