@@ -4,17 +4,11 @@ from src.object import Object
 from src.conversation import Conversation
 from src.utils import *
 
-pygame.mixer.init()
-sounds = dict()
-sounds['sagradaFamilia'] = pygame.mixer.Sound('assets/sounds/sf.mp3')
-sounds['parcGuell'] = pygame.mixer.Sound('assets/sounds/pc.mp3')
-sounds['000'] = pygame.mixer.Sound('assets/sounds/000.wav')
-sounds['7070255'] = pygame.mixer.Sound('assets/sounds/7070255.wav')
-
 # Main game class
 class Game:
     def __init__(self, data, s_data, ch_data, o_data, cv_data, cursor_img_path=None):
         pygame.init()
+        pygame.mixer.init()
         pygame.mouse.set_visible(False)
         self.main_text_font = pygame.font.SysFont("Courier", 18, bold=True)
         self.clock = pygame.time.Clock()
@@ -81,7 +75,7 @@ class Game:
         self.inventory = inventory
 
     def change_scene(self, scene):
-        sounds[self.current_scene_id].stop()
+        self.current_scene.background_music.stop()
         self.scenes[self.current_scene_id] = self.current_scene
         clock = pygame.time.Clock()
         fade_surface = pygame.Surface((self.camera_width, self.camera_height))
@@ -117,7 +111,7 @@ class Game:
         self.world_height = self.current_scene.height
         self.world = pygame.Surface((self.world_width, self.world_height))
         self.current_action_finished()
-        sounds[self.current_scene_id].play(loops=-1)
+        self.current_scene.background_music.play(loops=-1)
 
         # Define some main actions game-wide
 
@@ -253,8 +247,8 @@ class Game:
                         tmp_i+=1
                         tmp_frame=0
                         if tmp_i%3==0 and tmp_i < len(self.current_line):
-                            col = ''.join(map(str, self.current_color))
-                            sounds[col].play()
+                            ds = 300+sum(self.current_color)//2
+                            self.current_scene.dialogue_sound[ds].play()
                     if background_rect: pygame.draw.rect(self.screen, (255, 255, 255, 50), background_rect)
                     if text_rect: self.screen.blit(text_surface, text_rect)
                     tmp_frame+=1
@@ -271,6 +265,8 @@ class Game:
 
             # If there is a grabbed object, we show it now
             if self.grabbed_object:
+                if not self.inventory.rect.collidepoint((mouse_x,mouse_y)):
+                    self.inventory_is_open = False
                 img = self.grabbed_object.image.copy()
                 img,rect = rescale_to_rect(img, size=130)
                 img.set_alpha(180)

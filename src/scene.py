@@ -6,6 +6,7 @@ class Scene:
         self.game = game
         self.id = id
         self.background_image = pygame.image.load(data['backgroundDir'])
+        self.background_music = pygame.mixer.Sound(f'assets/sounds/{id}.mp3')
         self.width = self.background_image.get_width()
         self.height = self.background_image.get_height()
         self.walkable_areas = data['walkableAreas']
@@ -14,6 +15,7 @@ class Scene:
         self.characters = []  # Lista de personajes en la escena
         self.main_character = None
         self.walkable_path = None
+        self.dialogue_sound = dict()
 
         self.walkable_graph = create_walkable_graph(self.walkable_areas, self.forbidden_areas)
 
@@ -40,6 +42,8 @@ class Scene:
         character.position = position  # Inicializar la posición del personaje
         character.rect = character.image.get_rect(midbottom=character.position)  # Rectángulo de colisión
         self.characters.append(character)
+        ds = 300 + sum(character.dialogue_color) // 2
+        self.dialogue_sound[ds] = character.dialogue_sound
     
     def draw(self, screen, debug = False):
         """Dibuja la escena en la pantalla."""

@@ -1,4 +1,5 @@
 import os
+import numpy as np
 from src.utils import *
 
 # Colors for dialogue
@@ -6,6 +7,17 @@ BLACK = (0,0,0)
 GREEN = (0,255,0)
 BLUE = (0,0,255)
 RED = (255,0,0)
+
+
+def generate_beep(frequency, duration):
+    num_samples = int(44100 * duration)
+    t = np.linspace(0, duration, num_samples, False)
+    waveform = 0.5 * np.sin(2 * np.pi * frequency * t)
+    waveform = (waveform * (2 ** 15 - 1)).astype(np.int16)
+    stereo_waveform = np.column_stack((waveform, waveform))
+    sound = pygame.sndarray.make_sound(stereo_waveform)
+    return sound
+
 
 class Character:
     def __init__(self, game, char_id, data, dialogues):
@@ -16,6 +28,7 @@ class Character:
         self.description = data['description'] if 'description' in data.keys() else 'Nada interesante que comentar.'
         self.currentState = data['currentState'] if 'currentState' in data.keys() else 'idle'
         self.dialogue_color = eval(data['dialogueColor']) if 'dialogueColor' in data.keys() else BLACK
+        self.dialogue_sound = generate_beep(300+sum(self.dialogue_color)//2, 0.1)
         self.sprite_dirs = data["spritesDirs"]
         self.sprites = self.load_sprites(self.sprite_dirs[self.currentState])
         self.goodbyePhrases = data['goodbyePhrases'] if 'goodbyePhrases' in data.keys() else ['Adiós.']
