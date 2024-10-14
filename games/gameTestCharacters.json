@@ -23,5 +23,17 @@
     "currentState": "idle",
     "dialogueColor": "(70,70,255)",
     "frameDelay": 20
+  },
+  "willieMouse": {
+    "name": "Willie Mouse",
+    "description": [
+      "Parece sacado de una película de los años 20."
+    ],
+    "states": [
+      "idle"
+    ],
+    "currentState": "idle",
+    "dialogueColor": "(30,70,100)",
+    "frameDelay": 20
   }
 }}

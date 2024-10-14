@@ -97,7 +97,7 @@ class Debug:
                     # Adjust polygon for no-debug mode
                     new_polygon = [(x+self.game.camera.x, y+self.game.camera.y) for (x,y)
                                    in self.new_polygon]
-                    print(f"Set FP: {new_polygon}")
+                    print(f"Set FP: {new_polygon}".replace('(','[').replace(')',']'))
                     self.game.current_scene.forbidden_areas.append(new_polygon)
                     self.tmp_polygon = []
                     self.new_polygon = []

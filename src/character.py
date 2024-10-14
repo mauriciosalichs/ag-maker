@@ -28,7 +28,7 @@ class Character:
         self.description = data['description'] if 'description' in data.keys() else 'Nada interesante que comentar.'
         self.currentState = data['currentState'] if 'currentState' in data.keys() else 'idle'
         self.dialogue_color = eval(data['dialogueColor']) if 'dialogueColor' in data.keys() else BLACK
-        self.dialogue_sound = generate_beep(300+sum(self.dialogue_color)//2, 0.1)
+        self.dialogue_sound = generate_beep(freq_to_col(self.dialogue_color), 0.1)
         self.sprite_dirs = data["spritesDirs"]
         self.sprites = self.load_sprites(self.sprite_dirs[self.currentState])
         self.goodbyePhrases = data['goodbyePhrases'] if 'goodbyePhrases' in data.keys() else ['Adiós.']

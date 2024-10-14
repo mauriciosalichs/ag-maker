@@ -1,6 +1,10 @@
 import math, heapq, pygame, time
 from shapely.geometry import LineString, Polygon
 
+# Calculate beep frequency for a character (from its colour)
+def freq_to_col(tuple):
+    return 300 + sum(tuple) // 2
+
 # Returns new (image, rect)
 def rescale_to_rect(img, rect=None, size=130):
     if not rect:

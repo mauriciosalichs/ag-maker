@@ -231,7 +231,6 @@ class Game:
             self.screen.blit(self.world, (0, 0), self.camera)
 
             # If the inventory is open, we show it now
-            # TODO: Close it when there is a grabbed object and the mouse is outside of the inventory rect
             if self.inventory_is_open:
                 self.inventory.show()
 
@@ -247,8 +246,7 @@ class Game:
                         tmp_i+=1
                         tmp_frame=0
                         if tmp_i%3==0 and tmp_i < len(self.current_line):
-                            ds = 300+sum(self.current_color)//2
-                            self.current_scene.dialogue_sound[ds].play()
+                            self.current_scene.dialogue_sound[freq_to_col(self.current_color)].play()
                     if background_rect: pygame.draw.rect(self.screen, (255, 255, 255, 50), background_rect)
                     if text_rect: self.screen.blit(text_surface, text_rect)
                     tmp_frame+=1

@@ -42,8 +42,7 @@ class Scene:
         character.position = position  # Inicializar la posición del personaje
         character.rect = character.image.get_rect(midbottom=character.position)  # Rectángulo de colisión
         self.characters.append(character)
-        ds = 300 + sum(character.dialogue_color) // 2
-        self.dialogue_sound[ds] = character.dialogue_sound
+        self.dialogue_sound[freq_to_col(character.dialogue_color)] = character.dialogue_sound
     
     def draw(self, screen, debug = False):
         """Dibuja la escena en la pantalla."""
@@ -59,7 +58,7 @@ class Scene:
                 pygame.draw.lines(screen, (0,255,0), False, self.walkable_path, 3)
         
         main_char_drawn = False
-        for obj in self.objects:
+        for obj in self.objects + self.characters[1:]:
             if not main_char_drawn and obj.rect and \
                self.main_character.rect.colliderect(obj.rect) and \
                self.main_character.position[1] < obj.position[1]:	# El objeto debe aparecer adelante, entonces el personaje se dibujara primero
@@ -68,9 +67,6 @@ class Scene:
             obj.draw(screen)
         if not main_char_drawn:		# Si el personaje aun no fue dibujado, lo hacemos aquí
             self.main_character.draw(screen)
-            
-        for character in self.characters[1:]:
-            character.draw(screen)
     
     def update(self):
         for character in self.characters:
