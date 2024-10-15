@@ -38,7 +38,7 @@ class Game:
         self.inventory_is_open = False
         self.grabbed_object = None
 
-        # Store data of everytinh
+        # Store data of everything
         self.scenes_data = s_data
         self.characters_data = ch_data
         self.objects_data = o_data
