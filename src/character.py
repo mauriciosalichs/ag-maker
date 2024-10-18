@@ -8,7 +8,6 @@ GREEN = (0,255,0)
 BLUE = (0,0,255)
 RED = (255,0,0)
 
-
 def generate_beep(frequency, duration):
     num_samples = int(44100 * duration)
     t = np.linspace(0, duration, num_samples, False)
@@ -17,7 +16,6 @@ def generate_beep(frequency, duration):
     stereo_waveform = np.column_stack((waveform, waveform))
     sound = pygame.sndarray.make_sound(stereo_waveform)
     return sound
-
 
 class Character:
     def __init__(self, game, char_id, data, dialogues):
@@ -31,11 +29,13 @@ class Character:
         self.dialogue_sound = generate_beep(freq_to_col(self.dialogue_color), 0.1)
         self.sprite_dirs = data["spritesDirs"]
         self.sprites = self.load_sprites(self.sprite_dirs[self.currentState])
-        self.goodbyePhrases = data['goodbyePhrases'] if 'goodbyePhrases' in data.keys() else ['Adiós.']
         self.dialogue_data = dialogues
         self.current_frame = 0
+
         self.position = None
+        self.interact_position = None # [x,y,side]
         self.rect = None
+        self.face_right = True
         
         self.target_position = self.position  # Posición objetivo (a dónde se moverá)
         self.speed = 0.5  # Velocidad de movimiento del personaje
@@ -52,6 +52,16 @@ class Character:
     def change_name(self, name):
         self.name = name
 
+    def area_includes(self, x, y):
+        if not self.rect.collidepoint((x, y)):
+            return False
+        fix_x = x - self.rect.left
+        fix_y = y - self.rect.top
+        try:
+            return self.image.get_at((fix_x, fix_y)).a > 0
+        except:
+            return False
+
     def load_sprites(self, folder):
         """Carga todas las imágenes de una carpeta y las devuelve como una lista."""
         sprites = []
@@ -66,32 +76,38 @@ class Character:
         self.image = sprites[0]
         return sprites
 
-    def area_includes(self, x, y):
-        if not self.rect.collidepoint((x, y)):
-            return False
-        fix_x = x - self.rect.left
-        fix_y = y - self.rect.top
-        try:
-            return self.image.get_at((fix_x, fix_y)).a > 0
-        except:
-            return False
-
-    def observe(self):
+    def observe(self, ret=False):
         self.game.show_text(self.description)
+        if ret:
+            self.game.current_action_finished(f"observe {self.id}")
 
     def use(self, grabbed_object):
-        if euclidean_distance(self.game.current_scene.main_character.position, self.position) > 250:
+        if self.interact_position:
+            x, y, side = self.interact_position
+            if self.game.main_character.position != [x, y]:
+                self.game.actions.add_action(self.game.main_character, "walk_to", (x, y))
+                self.game.actions.add_action(self.game.main_character, "turn", side)
+                self.game.actions.add_action(self, "run_dialogue", None)
+                self.game.actions.continue_current_actions()
+            else:
+                self.run_dialogue()
+        elif euclidean_distance(self.game.main_character.position, self.position) > 250:
             self.game.show_text(f"Estoy demasiado lejos.")
         elif grabbed_object and not self.game.use_object_with_target(self.id, grabbed_object.id):
             self.game.show_text("No se porque haría eso.")
+        elif grabbed_object:
+            self.game.show_text(f"USAMOS {grabbed_object} en {self.name}")
         else:
             self.run_dialogue()
 
+    def end_dialogue(self):
+        self.game.end_conversation(self)
+
     def run_dialogue(self):
-        if not self.dialogue_data:
+        if self.dialogue_data:
+            self.game.start_conversation(self)
+        else:
             self.speak("¿Por que demonios le hablaría?")
-            return
-        self.game.start_conversation(self)
 
     def speak(self, text):
         # TODO: Add voice? Change animation when speaking?
@@ -102,7 +118,16 @@ class Character:
         self.image = self.sprites[self.current_frame]
         self.rect = self.image.get_rect(midbottom=self.position)
         screen.blit(self.image, self.rect.topleft)
-    
+
+    def flip(self):
+        self.sprites = [pygame.transform.flip(sprite, True, False) for sprite in self.sprites]
+
+    def turn(self, side):
+        if (side == 'left' and self.face_right) or (side == 'right' and not self.face_right):
+            self.flip()
+            self.face_right = not self.face_right
+        self.game.current_action_finished(f"turn {side}")
+
     def update(self):
         """Actualiza la posición del personaje y la animación."""
         # Cambiar al siguiente frame de la animación con retraso
@@ -128,35 +153,45 @@ class Character:
                     self.move_to(position)
                 else:
                     # Detenerse al llegar al destino
-                    self.position = [self.target_position.x, self.target_position.y]
+                    self.position = [int(self.target_position.x), int(self.target_position.y)]
                     self.rect = self.image.get_rect(midbottom=self.position)  # Rectángulo de colisión
                     self.is_moving = False
                     self.change_state('idle')
-                    self.game.current_action_finished()
+                    self.game.current_action_finished(f"moving {self.id}")
 
     def add_conv_id(self, id_to_remove):
         for value in self.dialogue_data.values():
             for resp in value['responses']:
                 if 'textHiddenID' in resp.keys() and resp['textHiddenID'] == id_to_remove:
                     del resp['textHiddenID']
-        self.game.current_action_finished()
+        self.game.current_action_finished(f"add_conv_id {id_to_remove}")
+
+    def walk_to(self, position):
+        if self in self.game.current_scene.characters:
+            self.game.current_scene.walk_to(self, position)
 
     def move_to(self, position):
         """Mueve el personaje a una posición dada usando como referencia el centro inferior."""
         self.target_position = pygame.Vector2(position)
+        going_left = (self.target_position[0] < self.position[0])
         self.is_moving = True
         self.change_state('walkingLeft')
         # Reflejar la imagen si el camino está a la izquierda o derecha del personaje
-        if self.target_position[0] < self.position[0]:
-            self.sprites = [pygame.transform.flip(sprite, True, False) for sprite in self.sprites]
+        if self.face_right == going_left:
+            self.flip()
+            self.face_right = not self.face_right
 
     def change_state(self, newState):
         self.currentState = newState
         try:
             self.sprites = self.load_sprites(self.sprite_dirs[self.currentState])
+            if not self.face_right:
+                self.flip()
             self.current_frame = 0
         except:
             print("not a drawable state")
 
-    def update_from_data(self, new_data):
+    def update_from_data(self, new_data, ret=False):
         eval(f"self.{new_data[0]} = {new_data[1]}")
+        if ret:
+            self.game.current_action_finished(f"update_from_data {new_data}")

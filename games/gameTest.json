@@ -1,4 +1,5 @@
 { "game": {
+  "id": "testGame",
   "cameraWidth": 1000,
   "cameraHeight": 800,
   "cursorImg":"cursor.png",

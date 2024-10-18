@@ -16,7 +16,7 @@
   "__speakRules": ["Rules when a character speaks about something specific. The structure is: [charId, textId,",
   	" matchedCheckpoints, checkpoint] where the triggers are checkpoints obtained, with an associated trigger."],
   "speakRules": [
-    ["manny","convinced",[],"architectHasSomething"]
+    ["manny","convinced",[],false,"architectHasSomething"]
   ],
 
   "__useRules": ["Rules to use an object. The structure is: [objectId, matchedCheckpoints, triggers] where ",
@@ -41,8 +41,10 @@
     "architectAskForSomething" : [["C_manny","add_conv_id","askForKeys"],
                                   ["C_manny","move_to",[706,685]],
                                   ["C_manny","speak","No puedes cojer mis llaves."],
-                                  ["C_manny","move_to",[649,716]]],
-    "architectHasSomething" : [["C_manny","move_to",[700,1300]],
+                                  ["C_manny","move_to",[649,716]],
+                                  ["C_manny","turn","right"]],
+    "architectHasSomething" : [ ["C_manny","end_dialogue"],
+                                ["C_manny","move_to",[700,1300]],
                                 ["C_mainCharacter","speak","Vaya... Eso ha sido fácil."]],
     "runningCar" : [["C_mainCharacter","speak","OH. Si que era la llave de ESTE coche."],
                     ["O_streetCar","change_name","Coche encendido."],

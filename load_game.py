@@ -1,10 +1,11 @@
-from src.game import Game
-from src.object import Object
-from src.debug import Debug
-from src.inventory import Inventory
-from src.actions import Actions
-
 import json
+
+from src.actions import Actions
+from src.debug import Debug
+from src.game import Game
+from src.inventory import Inventory
+from src.object import Object
+
 
 # Save game information to json file
 
@@ -95,7 +96,7 @@ if config['DEBUG']:
 game.run()
 
 # Before we close, we save the data (if the character isn't moving)
-if game.current_scene.main_character.is_moving:
+if game.main_character.is_moving:
     print("We dont save data as character is moving")
     exit()
     # Por ahora no guardamos el juego

@@ -16,15 +16,15 @@ class Conversation:
         self.dialogue_root[self.current_id]['responses'].append({'text': '¡Hasta Luego!', 'next': 'end'})
 	
     def answer(self):
-        if self.answered:
+        print("ANSWERING",self.answered)
+        if self.answered: # Ya se ha elegido una respuesta
             self.answered = False
             if self.current_id == 'end':
                 self.game.conversation = None
                 return
             if self.dialogue_root[self.current_id]['text']:
                 self.start()
-        else:
-            self.game.check_for_actions_about_conversation(self.character.id, self.current_id)
+        elif self.game.check_for_actions_about_conversation(self.character.id, self.current_id):
             self.game.choose_response = True
             for response in self.dialogue_root[self.current_id]['responses']:
                 if 'textHiddenID' in response.keys():
@@ -45,6 +45,8 @@ class Conversation:
             self.game.screen.blit(t_surf, t_rect)
 
     def handle_click(self, pos):
+        if not self.game.choose_response:
+            return
         for topic in self.options_rects.keys():
             if self.options_rects[topic][1].collidepoint(pos):
                 self.current_id = topic
@@ -57,4 +59,7 @@ class Conversation:
 
     def start(self):
         self.character.speak(self.dialogue_root[self.current_id]['text'])
-        
+
+    def end(self):
+        self.game.choose_response = False
+        print("CONVERSATION ENDED")

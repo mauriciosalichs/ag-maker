@@ -20,6 +20,7 @@ class Object:
 
         self.position = None
         self.rect = None
+        self.interact_position = None  # [x,y,side]
 
         self.font = pygame.font.SysFont("Courier", 24, bold=True)
         self.text_surface = self.font.render(self.name, True, (0, 0, 0))
@@ -37,12 +38,12 @@ class Object:
         self.game.objects_data[self.id]['name'] = name
         self.text_surface = self.font.render(self.name, True, (0, 0, 0))
         self.text_rect = self.text_surface.get_rect()
-        self.game.current_action_finished()
+        self.game.current_action_finished(f"change_name {name}")
 
     def change_description(self, description):
         self.description = description
         self.game.objects_data[self.id]['description'] = description
-        self.game.current_action_finished()
+        self.game.current_action_finished(f"change_description {description}")
 
     def area_includes(self, x, y):
         if self.polygon:	# Object inherent of the scene
@@ -62,10 +63,22 @@ class Object:
         self.game.show_text(self.description)
 
     def use(self, grabbed_object):
-        if self.position and \
-            euclidean_distance(self.game.current_scene.main_character.position, self.position) > 150:
+        if self.interact_position:
+            x, y, side = self.interact_position
+            if self.game.main_character.position != [x, y]:
+                self.game.actions.add_action(self.game.main_character, "walk_to", (x, y))
+                self.game.actions.add_action(self.game.main_character, "turn", side)
+                self.game.actions.add_action(self, "use_", grabbed_object)
+                self.game.actions.continue_current_actions()
+            else:
+                self.use_(grabbed_object)
+        elif euclidean_distance(self.game.main_character.position, self.position) > 100:
             self.game.show_text(f"Estoy demasiado lejos.")
-        elif self.is_grabbable:
+        else:
+            self.use_(grabbed_object)
+
+    def use_(self, grabbed_object=None):
+        if (not grabbed_object) and self.is_grabbable:
             if self.game.grab_object(self):
                 self.game.show_text(self.grab_description if self.grab_description else f"COJEMOS {self.name}")
         else:
@@ -77,6 +90,7 @@ class Object:
                     self.game.show_text(self.not_usable_text)
                 else:
                     self.game.show_text("No se porque haría eso.")
+        # self.game.current_action_finished(f"using {self.id}")
         
     def draw(self, screen):
         """Dibuja el objeto en la pantalla, excepto si esta dentro de la escena misma."""

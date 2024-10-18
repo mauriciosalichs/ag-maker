@@ -186,6 +186,285 @@
         ],
         "responses": []
       }
+    },
+    "willieMouse": {
+      "start": {
+        "text": [
+          "Bueno, bueno... ¿qué tenemos aquí? Otro turista perdido.",
+          "¿Vienes a admirar la ‘belleza’ de Parc Güell?",
+          "Déjame adivinar, pensabas que sería un lugar mágico, ¿verdad?",
+          "Bienvenido a la realidad, amigo.",
+          "Soy Willie, el ratón que solía ser famoso. Pero ahora,",
+          "me verás aquí, paseando entre las piedras y las palomas, recordando mejores días."
+        ],
+        "responses": [
+          {
+            "text": "¿Famoso? ¿Qué te pasó?",
+            "next": "williePast"
+          },
+          {
+            "text": "Parece que odias este lugar...",
+            "next": "willieHatesPark"
+          },
+          {
+            "text": "¿Qué haces aquí todo el día?",
+            "next": "willieRoutine"
+          }
+        ]
+      },
+      "williePast": {
+        "text": [
+          "Ah, la fama... Era el mejor ratón que podías encontrar en la pantalla.",
+          "Un icono, una estrella. Pero luego apareció 'él'.",
+          "Sí, ese otro ratón... con sus guantes blancos y sonrisa perfecta.",
+          "No tardé en ser relegado a las sombras.",
+          "Cuando ya no sirves para vender tazas y camisetas, te mandana sitios como este.",
+          "Así que aquí estoy, entreteniendo turistas y recordando lo que una vez fui."
+        ],
+        "responses": [
+          {
+            "text": "Debe ser duro ver cómo alguien toma tu lugar.",
+            "next": "willieResentment"
+          },
+          {
+            "text": "¿Nadie intentó ayudarte?",
+            "next": "willieNoHelp"
+          }
+        ]
+      },
+      "willieResentment": {
+        "text": [
+          "¿Duro? No, amigo... es una humillación diaria.",
+          "Ver su cara en todas partes, mientras yo estoy aquí,",
+          "disfrazado de mí mismo para unos pocos centavos.",
+          "La gente no tiene idea de lo que es ser olvidado.",
+          "Ellos solo ven al nuevo, brillante, feliz...",
+          "Pero yo sé lo que se siente ser un desecho."
+        ],
+        "responses": [
+          {
+            "text": "Eso suena terrible... ¿no has intentado algo diferente?",
+            "next": "willieNoEscape"
+          }
+        ]
+      },
+      "willieNoHelp": {
+        "text": [
+          "¿Ayudarme? ¡Por favor! Nadie ayuda a los que ya no son útiles.",
+          "En este negocio, o eres una máquina de hacer dinero o no existes.",
+          "Pero no me quejo, al menos aquí tengo un poco de libertad...",
+          "Aunque sea solo entre las piedras de este parque maldito."
+        ],
+        "responses": [
+          {
+            "text": "¿Por qué no te vas de aquí entonces?",
+            "next": "willieNoEscape"
+          }
+        ]
+      },
+      "willieNoEscape": {
+        "text": [
+          "¿Irme? ¿Y a dónde? Todo el mundo quiere al",
+          "nuevo ratón. Y yo... soy una reliquia.",
+          "Así que me quedo aquí, mirando cómo los turistas se sacan fotos,",
+          "ignorando completamente que alguna vez fui una estrella.",
+          "Prefiero esto a mendigar en las calles."
+        ],
+        "responses": [
+          {
+            "text": "¿Nunca pensaste en luchar por tu lugar?",
+            "next": "willieFight"
+          }
+        ]
+      },
+      "willieFight": {
+        "text": [
+          "¡Oh, lo intenté! Pero no puedes pelear contra una compañía gigante.",
+          "Es como enfrentarte a una pared de ladrillos con una cuchara de plástico.",
+          "Después de años de intentarlo, me di cuenta de que no valía la pena.",
+          "Ahora, solo me queda disfrutar el aire fresco... y de vez en cuando, un cigarrillo."
+        ],
+        "responses": [
+          {
+            "text": "¿Eso es todo lo que te queda?",
+            "next": "willieLifePhilosophy"
+          },
+          {
+            "text": "Debe ser frustrante...",
+            "next": "willieFrustration"
+          }
+        ]
+      },
+      "willieLifePhilosophy": {
+        "text": [
+          "Sí, eso es todo. Fumar, caminar, y ver cómo los años pasan.",
+          "Es curioso, cuando eres joven y famoso, piensas que eso durará para siempre.",
+          "Pero cuando caes, te das cuenta de que la vida es solo una serie",
+          "de días que pasan, uno tras otro. Sin sentido real, solo... pasan."
+        ],
+        "responses": [
+          {
+            "text": "¿Eso es lo que piensas de la vida ahora?",
+            "next": "willieExistential"
+          }
+        ]
+      },
+      "willieFrustration": {
+        "text": [
+          "Frustrante no es la palabra, amigo. Es más bien... vacío.",
+          " No me queda nada que hacer, excepto seguir con la rutina.",
+          "Así que aquí estoy, esperando a que alguien me traiga algo interesante para variar.",
+          " Un cigarrillo, por ejemplo, podría mejorar mi día."
+        ],
+        "responses": [
+          {
+            "text": "¿Un cigarrillo te haría feliz?",
+            "next": "willieCigarettesHint"
+          }
+        ]
+      },
+      "willieHatesPark": {
+        "text": [
+            "¿Odiar este lugar? ¡Por supuesto! Lo llaman un parque,",
+            "pero es solo una trampa para turistas.",
+            "No tiene el encanto que solía tener cuando yo era joven.",
+            "Ahora es solo cemento y selfies.",
+            "No es más que una sombra de lo que una vez fue."
+        ],
+        "responses": [
+            {
+                "text": "¿Por qué no te vas a otro lugar?",
+                "next": "willieNoEscape"
+            }
+        ]
+      },
+      "willieExistential": {
+        "text": [
+          "La vida... es un chiste mal contado, si me preguntas.",
+          " Todos piensan que están destinados a hacer grandes cosas,",
+          " pero al final, solo somos otro engranaje en la máquina.",
+          "Al menos yo lo entendí antes de que fuera demasiado tarde.",
+          " Otros siguen creyendo que tienen algún control sobre su destino... qué tiernos."
+        ],
+        "responses": [
+          {
+            "text": "Parece que ya has aceptado tu destino.",
+            "next": "willieAcceptance"
+          },
+          {
+            "text": "Debe ser duro vivir con esa perspectiva.",
+            "next": "willieFrustration"
+          }
+        ]
+      },
+      "willieAcceptance": {
+        "text": [
+          "Claro, ¿qué más puedo hacer? Luchar contra lo inevitable es de tontos.",
+          " Aceptas tu lugar y sigues adelante, o te rompes.",
+          "Yo prefiero no romperme... al menos no del todo."
+        ],
+        "responses": [
+          {
+            "text": "¿Y qué haces para pasar el tiempo?",
+            "next": "willieRoutine"
+          }
+        ]
+      },
+      "willieRoutine": {
+        "text": [
+          "Lo mismo todos los días. Me siento en una banca,",
+          " veo pasar a los turistas, algunos me piden fotos,",
+          "otros me ignoran por completo.",
+          "A veces me acerco a los vendedores ambulantes para",
+          " ver si puedo sacar un cigarrillo... ¡ese es mi gran momento del día!",
+          "Pero en su mayoría, solo espero. A veces, cuando el sol se pone,",
+          " el parque se vacía... y entonces pienso en lo que pudo haber sido."
+        ],
+        "responses": [
+          {
+            "text": "¿Nunca has considerado hacer algo diferente?",
+            "next": "willieNoEscape"
+          },
+          {
+            "text": "¿Qué piensas de los turistas que vienen aquí?",
+            "next": "willieTourists"
+          }
+        ]
+      },
+      "willieTourists": {
+        "text": [
+          "Ah, los turistas... vienen, miran, se toman una foto y se van.",
+          " A veces pienso que ni siquiera saben dónde están.",
+          "Pero no los culpo. Este parque es solo una parada más en su viaje,",
+          " como cualquier otra. La mayoría de ellos no tiene idea",
+          " de quién soy ni de lo que fui."
+        ],
+        "responses": [
+          {
+            "text": "Eso suena bastante deprimente.",
+            "next": "willieExistential"
+          },
+          {
+            "text": "¿Crees que algún día alguien se dará cuenta de quién eres?",
+            "next": "willieNoHope"
+          }
+        ]
+      },
+      "willieNoHope": {
+        "text": [
+          "¿Que alguien se dé cuenta? ¡Ja! Eso es gracioso.",
+          " Nadie va a recordar a un ratón viejo y cínico.",
+          "Y si lo hacen, probablemente sea solo para reírse",
+          " de lo que solía ser. No, amigo, mi tiempo ya pasó."
+        ],
+        "responses": [
+          {
+            "text": "Eso suena... bastante pesimista.",
+            "next": "willieLifePhilosophy"
+          },
+          {
+            "text": "Tal vez deberías intentarlo de nuevo.",
+            "next": "willieNoEscape"
+          }
+        ]
+      },
+      "willieCigarettesHint": {
+        "text": [
+          "No sé si feliz es la palabra...",
+          "pero ciertamente mejoraría mi día.",
+          "Ahora que lo mencionas, si me traes un paquete de cigarrillos...",
+          " podríamos hacer un trato interesante.",
+          " Conozco a alguien que podría facilitarte la entrada a la Sagrada Familia.",
+          "No es que me importe mucho el lugar, pero parece que a ti sí.",
+          "Así que... ¿qué dices?"
+        ],
+        "responses": [
+          {
+            "text": "¿Un trato? Suena justo. Te traeré los cigarrillos.",
+            "next": "willieDealAccepted"
+          },
+          {
+            "text": "¿No hay otra forma?",
+            "next": "willieDealRejected"
+          }
+        ]
+      },
+      "willieDealAccepted": {
+        "text": [
+          "Bien, me gusta tu actitud. Trae esos cigarrillos y veré qué puedo hacer por ti.",
+          "Pero no te lo tomes muy a pecho, esto es solo un negocio. Nada personal."
+        ],
+        "responses": []
+      },
+      "willieDealRejected": {
+        "text": [
+          "Oh, claro... siempre buscando la salida fácil.",
+          " Lo siento, amigo, pero si no estás dispuesto a jugar,",
+          "entonces no hay trato.",
+          "Recuerda: este mundo es cruel, y los favores no son gratis."
+        ],
+        "responses": []
+      }
     }
   }
 }

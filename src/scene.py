@@ -29,17 +29,20 @@ class Scene:
         self.forbidden_areas.append(polygon)
         self.walkable_graph = create_walkable_graph(self.walkable_areas, self.forbidden_areas)
     
-    def add_object(self, game_object, position=None):
+    def add_object(self, game_object, data=None):
         """Añade un objeto a la escena en una posición específica."""
-        if position:
-        	game_object.set_position(position)  # Rectángulo de colisión
+        if data:
+            game_object.set_position(data[1]) # Rectángulo de colisión
+            game_object.interact_position = data[2] if len(data) > 2 else None
         self.objects.append(game_object)
     
-    def add_character(self, character, position):
+    def add_character(self, character, data):
         """Añade un personaje a la escena en una posición específica."""
         if not self.characters:
             self.main_character = character
-        character.position = position  # Inicializar la posición del personaje
+            self.game.main_character = character
+        character.position = data[1]  # Inicializar la posición del personaje
+        character.interact_position = data[2] if len(data) > 2 else None
         character.rect = character.image.get_rect(midbottom=character.position)  # Rectángulo de colisión
         self.characters.append(character)
         self.dialogue_sound[freq_to_col(character.dialogue_color)] = character.dialogue_sound
@@ -85,10 +88,8 @@ class Scene:
                     obj.observe()
                     return
             # No object or character clicked, then we try to walk
-            self.walkable_path = self.gen_walkable_path(position)
-            if self.walkable_path:
-                self.characters[0].walking_path = self.walkable_path[1:]
-                self.characters[0].move_to(self.walkable_path[0])
+            self.walk_to(self.main_character, position)
+
         elif button == 3: 	# Right click
             for char in self.characters:
                 if char.area_includes(x,y):
@@ -101,7 +102,16 @@ class Scene:
             # No object or character clicked, then we open the inventory
             if not self.game.grabbed_object:
                 self.game.inventory_is_open = True
-    
+
+    def walk_to(self, character, position):
+        self.walkable_path = self.gen_walkable_path(position)
+        if self.walkable_path:
+            character.move_to(self.walkable_path[1])
+            if len(self.walkable_path) > 2:
+                character.walking_path = self.walkable_path[2:]
+        else:
+            self.game.current_action_finished(f"NOT POSSIBLE TO WALK {character.id} TO {position}")
+
     def gen_walkable_path(self, end_position): # Por ahora, solo consideraremos un unico poligono caminable
         """Genera un camino hacia un punto dentro del área caminable."""
         polygon = self.walkable_areas[0] # for polygon in self.walkable_areas...

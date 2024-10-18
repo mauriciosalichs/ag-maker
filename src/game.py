@@ -13,6 +13,7 @@ class Game:
         self.main_text_font = pygame.font.SysFont("Courier", 18, bold=True)
         self.clock = pygame.time.Clock()
 
+        self.id = data["id"]
         self.mouse_pos = None
         self.mouse_camera_pos = None
         self.camera_width = data["cameraWidth"]
@@ -28,6 +29,8 @@ class Game:
         self.world_width = None
         self.world_height = None
         self.world = None
+
+        self.main_character = None
 
         self.debug = None
         self.debug_running = False
@@ -58,18 +61,26 @@ class Game:
 
     # Set other components of the game
 
+    def interactive_mode(self):
+        return not (self.action_in_place or self.show_help)
+
     def set_actions(self, actions):
         self.actions = actions
-        
+
+    def end_conversation(self, character):
+        self.conversation.end()
+        self.conversation = None
+
     def start_conversation(self, character):
         self.conversation = Conversation(self, character)
         self.conversation.start()
 
-    def current_action_finished(self):
-        self.actions.continue_current_actions()
+    def current_action_finished(self, action=""):
+        print("FINISHED", action)
         if self.conversation:
             self.current_color = None
             self.conversation.answer()
+        self.actions.continue_current_actions()
 
     def set_inventory(self, inventory):
         self.inventory = inventory
@@ -100,17 +111,17 @@ class Game:
             self.current_scene = Scene(self, scene, current_scene_data)
             for od in current_scene_data["objects"]:
                 object_data = self.objects_data[od[0]]
-                self.current_scene.add_object(Object(self, od[0], object_data), od[1])
+                self.current_scene.add_object(Object(self, od[0], object_data), od)
             for cd in current_scene_data["characters"]:
                 character_data = self.characters_data[cd[0]]
                 char_dialogues = self.conversations_data[cd[0]] if cd[0] in self.conversations_data.keys() else None
-                self.current_scene.add_character(Character(self, cd[0], character_data, char_dialogues), cd[1])
+                self.current_scene.add_character(Character(self, cd[0], character_data, char_dialogues), cd)
             self.scenes[scene] = self.current_scene
 
         self.world_width = self.current_scene.width
         self.world_height = self.current_scene.height
         self.world = pygame.Surface((self.world_width, self.world_height))
-        self.current_action_finished()
+        self.current_action_finished(f"set_scece {scene}")
         self.current_scene.background_music.play(loops=-1)
 
         # Define some main actions game-wide
@@ -148,8 +159,9 @@ class Game:
     def handle_click(self, button):
         if self.action_in_place:     # wherever we have a running animation or any
             return                  # other special event, we ignore the click
-        if self.choose_response:
+        if self.conversation:
             self.conversation.handle_click(self.mouse_camera_pos)
+            return
         tmp_og = self.grabbed_object
         if self.inventory_is_open:
             self.inventory.handle_click(self.mouse_pos, button, self.grabbed_object)
@@ -164,12 +176,13 @@ class Game:
         text_rect = None
         tmp_i,tmp_frame = 0,0 # Indexes for subtitles
         while running:
-            keys = pygame.key.get_pressed()
             mouse_x, mouse_y = pygame.mouse.get_pos()
             self.mouse_camera_pos = (mouse_x, mouse_y)
+            if not self.choose_response:
+                keys = pygame.key.get_pressed()
 
             # Camera reposition
-            mc_x, mc_y = self.current_scene.main_character.position
+            mc_x, mc_y = self.main_character.position
             mc_x -= self.camera.x
             mc_y -= self.camera.y
             if mc_x < 300:
@@ -195,7 +208,7 @@ class Game:
 
             if keys[pygame.K_h]:
                 self.show_help = not self.show_help
-            if not (self.action_in_place or self.choose_response or self.show_help):
+            if self.interactive_mode():
                 if keys[pygame.K_SPACE] and self.current_line:
                     tmp_i = 1000
                 if keys[pygame.K_ESCAPE]:
@@ -220,7 +233,7 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                elif event.type == pygame.MOUSEBUTTONDOWN and not self.show_help:
+                elif event.type == pygame.MOUSEBUTTONDOWN and self.interactive_mode():
                     self.handle_click(event.button)
                 
             # We update the scene and then draw everything in a specific order
@@ -259,7 +272,7 @@ class Game:
                     else:
                         self.current_line = None
                         self.start_time = None
-                        self.current_action_finished()
+                        self.current_action_finished("showing text")
 
             # If there is a grabbed object, we show it now
             if self.grabbed_object:

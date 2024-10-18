@@ -1,6 +1,7 @@
 { "characters": {
+
   "mainCharacter": {
-    "name": "Guybrush Tarragona",
+    "name": "Carles",
     "description": [
       "Que muchachote mas apuesto."
     ],
@@ -9,9 +10,9 @@
       "walkingLeft"
     ],
     "currentState": "idle",
-    "dialogueColor": "BLACK",
-    "goodbyePhrases":["¡Hasta la vista!","¡Adiós!","Debo irme, dejé el pollo en el horno.","Me encantaría seguir hablando, pero..."]
+    "dialogueColor": "BLACK"
   },
+
   "manny": {
     "name": "Manny Calavera",
     "description": [
@@ -24,6 +25,7 @@
     "dialogueColor": "(70,70,255)",
     "frameDelay": 20
   },
+
   "willieMouse": {
     "name": "Willie Mouse",
     "description": [

@@ -50,29 +50,36 @@ class Actions:
         pass
         
     def checkForConversationId(self, char_id, text_id):
-        for chr_id, conv_id, cpCond, response in self.speakRules:
+        for chr_id, conv_id, cpCond, keep_conv, response in self.speakRules:
             if chr_id == char_id and conv_id == text_id:
                 if all(elem in self.checkpoints for elem in cpCond):
                     self.checkpoints.add(response)
                     self.launch_trigger(response)
-                    return True
-        return False
+                    return keep_conv
+        return True
 
     def launch_trigger(self, cpId):
-        self.game.action_in_place = True
         triggers = self.triggers[cpId]
-        for tTarget, tParam, tValue in triggers:
-            print("LAUNCHING", tTarget, tParam, tValue)
-            entity = self.get_entity(tTarget)
-            self.current_actions.append((entity,tParam,tValue))
+        for action in triggers:
+            attr = action[1]
+            val = action[2] if len(action)>2 else None
+            print("ADD", action[0], attr, val)
+            entity = self.get_entity(action[0])
+            self.current_actions.append((entity,attr,val))
         self.continue_current_actions()
+
+    def add_action(self, entity, param, value):
+        self.current_actions.append((entity,param,value))
 
     def continue_current_actions(self):
         if self.current_actions:
+            self.game.action_in_place = True
             (entity,param,value) = self.current_actions[0]
             self.current_actions = self.current_actions[1:]
+            print("LAUNCHING",entity.id,param,value)
             attr = getattr(entity, param)
-            attr(value)
+            if value: attr(value)
+            else: attr()
         else:
             self.game.action_in_place = False
 
