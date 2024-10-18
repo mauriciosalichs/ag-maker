@@ -77,6 +77,7 @@ class Scene:
         # Something else to update?
     
     def handle_click(self, position, button, selected_object):
+        print("CLICKED",position)
         x,y = position
         if button == 1: 	# Left click
             for char in self.characters:

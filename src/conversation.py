@@ -16,7 +16,6 @@ class Conversation:
         self.dialogue_root[self.current_id]['responses'].append({'text': '¡Hasta Luego!', 'next': 'end'})
 	
     def answer(self):
-        print("ANSWERING",self.answered)
         if self.answered: # Ya se ha elegido una respuesta
             self.answered = False
             if self.current_id == 'end':

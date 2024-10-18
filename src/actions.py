@@ -61,11 +61,10 @@ class Actions:
     def launch_trigger(self, cpId):
         triggers = self.triggers[cpId]
         for action in triggers:
+            entity = self.get_entity(action[0])
             attr = action[1]
             val = action[2] if len(action)>2 else None
-            print("ADD", action[0], attr, val)
-            entity = self.get_entity(action[0])
-            self.current_actions.append((entity,attr,val))
+            self.add_action(entity,attr,val)
         self.continue_current_actions()
 
     def add_action(self, entity, param, value):
@@ -101,4 +100,4 @@ class Actions:
             for obj in self.game.current_scene.objects:
                 if obj.id == target[2:]:
                     return obj
-        print("NOT FOUND")
+        print(f"{target} NOT FOUND")

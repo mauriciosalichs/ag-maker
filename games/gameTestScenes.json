@@ -12,7 +12,7 @@
       "objects": [
         ["streetLamp",[330,500]],
         ["streetCar",[500,520],[555, 533, "left"]],
-        ["streetTent",[793,432]],
+        ["streetTent",[793,432],[670, 485, "right"]],
         ["carKeys",[762,658]],
         ["sf",""]],
       "characters": [
