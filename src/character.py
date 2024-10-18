@@ -51,6 +51,15 @@ class Character:
 
     def change_name(self, name):
         self.name = name
+        self.game.current_action_finished(f"changed name {self.id} to {name}")
+
+    def change_descriptio(self, description):
+        self.description = description
+        self.game.current_action_finished(f"changed description {self.id} to {description}")
+
+    def change_conversation(self, conversationId):
+        self.dialogue_data = self.game.conversations_data[conversationId]
+        self.game.current_action_finished(f"changed conversation {self.id} to {conversationId}")
 
     def area_includes(self, x, y):
         if not self.rect.collidepoint((x, y)):

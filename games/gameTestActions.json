@@ -16,7 +16,8 @@
   "__speakRules": ["Rules when a character speaks about something specific. The structure is: [charId, textId,",
   	" matchedCheckpoints, checkpoint] where the triggers are checkpoints obtained, with an associated trigger."],
   "speakRules": [
-    ["manny","convinced",[],false,"architectHasSomething"]
+    ["manny","convinced",[],false,"architectHasSomething"],
+    ["willieMouse","willieDealAccepted",[],false,"willieWaitsForCigars"]
   ],
 
   "__useRules": ["Rules to use an object. The structure is: [objectId, matchedCheckpoints, triggers] where ",
@@ -46,6 +47,8 @@
     "architectHasSomething" : [ ["C_manny","end_dialogue"],
                                 ["C_manny","move_to",[700,1300]],
                                 ["C_mainCharacter","speak","Vaya... Eso ha sido fácil."]],
+    "willieWaitsForCigars" : [ ["C_willieMouse","end_dialogue"],
+                              ["C_willieMouse","change_conversation","willieCigars"]],
     "runningCar" : [["C_mainCharacter","speak","OH. Si que era la llave de ESTE coche."],
                     ["O_streetCar","change_name","Coche encendido."],
                     ["O_streetCar","change_description",["¡Mi nuevo coche para moverme por Barcelona!"]]],

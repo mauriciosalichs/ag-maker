@@ -187,6 +187,7 @@
         "responses": []
       }
     },
+
     "willieMouse": {
       "start": {
         "text": [
@@ -461,6 +462,18 @@
           "Oh, claro... siempre buscando la salida fácil.",
           " Lo siento, amigo, pero si no estás dispuesto a jugar,",
           "entonces no hay trato.",
+          "Recuerda: este mundo es cruel, y los favores no son gratis."
+        ],
+        "responses": []
+      }
+    },
+
+    "willieCigars": {
+      "start": {
+        "text": [
+          "Amigo, ¿Me has traído mis cigarrillos?",
+          "Si no es el caso, intenta no molestarme ahora.",
+          "Estoy preparando un número para entretener a los críos.",
           "Recuerda: este mundo es cruel, y los favores no son gratis."
         ],
         "responses": []

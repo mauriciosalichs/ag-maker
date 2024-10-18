@@ -76,7 +76,7 @@ class Game:
         self.conversation.start()
 
     def current_action_finished(self, action=""):
-        print("FINISHED", action)
+        if action != "showing text": print("FINISHED", action)
         if self.conversation:
             self.current_color = None
             self.conversation.answer()
