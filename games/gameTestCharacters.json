@@ -36,6 +36,6 @@
     ],
     "currentState": "idle",
     "dialogueColor": "(30,70,100)",
-    "frameDelay": 20
+    "frameDelay": 10
   }
 }}

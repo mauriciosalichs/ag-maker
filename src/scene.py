@@ -1,4 +1,4 @@
-import pygame
+import os
 from src.utils import *
 
 class Scene:
@@ -6,7 +6,7 @@ class Scene:
         self.game = game
         self.id = id
         self.background_image = pygame.image.load(data['backgroundDir'])
-        self.background_music = pygame.mixer.Sound(f'assets/sounds/{id}.mp3')
+        self.background_music = pygame.mixer.Sound(f'assets/sounds/{id}.mp3') if os.path.exists(f'assets/sounds/{id}.mp3') else None
         self.width = self.background_image.get_width()
         self.height = self.background_image.get_height()
         self.walkable_areas = data['walkableAreas']
@@ -53,8 +53,8 @@ class Scene:
         
         # DEBUG: Dibuja los poligonos
         if debug:
-            if self.walkable_areas:
-                pygame.draw.polygon(screen, (0,0,255), self.walkable_areas[0], 3)
+            for walkable in self.walkable_areas:
+                pygame.draw.polygon(screen, (0,0,255), walkable, 3)
             for forbidden in self.forbidden_areas:
                 pygame.draw.polygon(screen, (255,0,0), forbidden, 3)
             if self.walkable_path:
@@ -64,7 +64,9 @@ class Scene:
         for obj in self.objects + self.characters[1:]:
             if not main_char_drawn and obj.rect and \
                self.main_character.rect.colliderect(obj.rect) and \
-               self.main_character.position[1] < obj.position[1]:	# El objeto debe aparecer adelante, entonces el personaje se dibujara primero
+               self.main_character.position[1] < obj.position[1]:
+                # El objeto debe aparecer adelante, entonces el personaje se dibujara primero
+                # TODO: Tener un poligono asociado a cada objeto, y calcular en base al POLIGONO
                 self.main_character.draw(screen)
                 main_char_drawn = True
             obj.draw(screen)
@@ -77,7 +79,6 @@ class Scene:
         # Something else to update?
     
     def handle_click(self, position, button, selected_object):
-        print("CLICKED",position)
         x,y = position
         if button == 1: 	# Left click
             for char in self.characters:

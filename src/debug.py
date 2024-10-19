@@ -40,8 +40,9 @@ class Debug:
         self.old_y = None
 
         # Polygons
-        self.tmp_polygon = []
         self.new_polygon = []
+        self.prx = None
+        self.pry = None
         self.point_selected = None
 
         # Add object
@@ -91,24 +92,21 @@ class Debug:
         text_modify_polygon_rect = self.text_modify_polygon.get_rect(center=self.rect.center)
         self.game.screen.blit(self.text_modify_polygon, text_modify_polygon_rect)
         if event == pygame.MOUSEBUTTONDOWN:
+            mouse_x = self.mouse_x - self.game.camera.x
+            mouse_y = self.mouse_y - self.game.camera.y
             if self.new_polygon:
                 px, py = self.new_polygon[0]
                 if abs(self.mouse_x - px) < 10 and abs(self.mouse_y - py) < 10:
                     # Adjust polygon for no-debug mode
-                    new_polygon = [(x+self.game.camera.x, y+self.game.camera.y) for (x,y)
-                                   in self.new_polygon]
-                    print(f"Set FP: {new_polygon}".replace('(','[').replace(')',']'))
-                    self.game.current_scene.forbidden_areas.append(new_polygon)
-                    self.tmp_polygon = []
+                    if self.mode == DebugMode.ADD_FORBIDDEN_POLYGON:
+                        self.game.current_scene.add_forbidden_area(self.new_polygon)
+                    elif self.mode == DebugMode.ADD_WALKABLE_POLYGON:
+                        self.game.current_scene.add_walkable_area(self.new_polygon)
+                    print(f"Set POLY: {self.new_polygon}".replace('(', '[').replace(')', ']'))
                     self.new_polygon = []
                     self.go_to_idle()
                     return
-            self.new_polygon.append((self.mouse_x, self.mouse_y))
-        else:
-            if not self.new_polygon:
-                return
-            else:
-                self.tmp_polygon = self.new_polygon + [(self.mouse_x, self.mouse_y)]
+            self.new_polygon.append((mouse_x + self.game.camera.x, mouse_y + self.game.camera.y))
 
     def add_object(self, event = None):
         if event == pygame.MOUSEBUTTONDOWN:
@@ -180,7 +178,7 @@ class Debug:
 		
         if self.mode == DebugMode.IDLE:
             return
-        elif self.mode == DebugMode.ADD_FORBIDDEN_POLYGON:
+        elif self.mode == DebugMode.ADD_FORBIDDEN_POLYGON or self.mode == DebugMode.ADD_WALKABLE_POLYGON:
             self.add_polygon(event_type)
         elif self.mode == DebugMode.MODIFY_POLYGON:
             self.modify_polygon(event_type)
@@ -196,13 +194,28 @@ class Debug:
         while running:
             keys = pygame.key.get_pressed()
             mouse_pos = pygame.mouse.get_pos()
-            self.mouse_x = mouse_pos[0]# + self.game.camera.x
-            self.mouse_y = mouse_pos[1]# + self.game.camera.y
-            
+            self.mouse_x = mouse_pos[0] + self.game.camera.x
+            self.mouse_y = mouse_pos[1] + self.game.camera.y
+
+            if keys[pygame.K_LEFT]:
+                self.game.camera.x -= 1
+            if keys[pygame.K_RIGHT]:
+                self.game.camera.x += 1
+            if keys[pygame.K_UP]:
+                self.game.camera.y -= 1
+            if keys[pygame.K_DOWN]:
+                self.game.camera.y += 1
+            if self.game.camera.left < 0:
+                self.game.camera.left = 0
+            if self.game.camera.right > self.game.world_width:
+                self.game.camera.right = self.game.world_width
+            if self.game.camera.top < 0:
+                self.game.camera.top = 0
+            if self.game.camera.bottom > self.game.world_height:
+                self.game.camera.bottom = self.game.world_height
+
             if keys[pygame.K_q]:
                 running = False
-            elif keys[pygame.K_c]:
-                print(self.mouse_x, self.mouse_y)
             elif keys[pygame.K_i] and self.mode != DebugMode.IDLE:
                 print("DEBUG MODE: IDLE")
                 self.go_to_idle()
@@ -233,6 +246,9 @@ class Debug:
             
             self.perform_action()
             for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_c:
+                        print(self.mouse_x, self.mouse_y)
                 self.perform_action(event)
             
             # Actualizar y dibujar la escena
@@ -248,8 +264,10 @@ class Debug:
                 self.game.screen.blit(scaled_image, rect.topleft)
 
             self.draw_graph()
-            if self.tmp_polygon:
-                pygame.draw.polygon(self.game.screen, (255,0,0), self.tmp_polygon, 3)
-            	
+            if len(self.new_polygon) > 1:
+                color = (255,0,0) if self.mode == DebugMode.ADD_FORBIDDEN_POLYGON else (0,0,255)
+                screen_polygon = [(x - self.game.camera.x, y - self.game.camera.y) for (x, y) in self.new_polygon]
+                pygame.draw.polygon(self.game.screen, color, screen_polygon, 3)
+
             pygame.display.flip()
         pygame.mouse.set_visible(False)

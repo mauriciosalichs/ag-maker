@@ -86,7 +86,8 @@ class Game:
         self.inventory = inventory
 
     def change_scene(self, scene):
-        self.current_scene.background_music.stop()
+        if self.current_scene.background_music:
+            self.current_scene.background_music.stop()
         self.scenes[self.current_scene_id] = self.current_scene
         clock = pygame.time.Clock()
         fade_surface = pygame.Surface((self.camera_width, self.camera_height))
@@ -109,7 +110,8 @@ class Game:
             self.current_scene_id = scene
             current_scene_data = self.scenes_data[scene]
             self.current_scene = Scene(self, scene, current_scene_data)
-            for od in current_scene_data["objects"]:
+            data_objects = current_scene_data["objects"] if "objects" in current_scene_data.keys() else []
+            for od in data_objects:
                 object_data = self.objects_data[od[0]]
                 self.current_scene.add_object(Object(self, od[0], object_data), od)
             for cd in current_scene_data["characters"]:
@@ -120,9 +122,13 @@ class Game:
 
         self.world_width = self.current_scene.width
         self.world_height = self.current_scene.height
+        if "cameraX" in current_scene_data.keys() and "cameraY" in current_scene_data.keys():
+            self.camera.x = current_scene_data["cameraX"]
+            self.camera.y = current_scene_data["cameraY"]
         self.world = pygame.Surface((self.world_width, self.world_height))
+        if self.current_scene.background_music:
+            self.current_scene.background_music.play(loops=-1)
         self.current_action_finished(f"set_scece {scene}")
-        self.current_scene.background_music.play(loops=-1)
 
         # Define some main actions game-wide
 
