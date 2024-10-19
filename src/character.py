@@ -96,10 +96,10 @@ class Character:
             if self.game.main_character.position != [x, y]:
                 self.game.actions.add_action(self.game.main_character, "walk_to", (x, y))
                 self.game.actions.add_action(self.game.main_character, "turn", side)
-                self.game.actions.add_action(self, "run_dialogue", None)
+                self.game.actions.add_action(self, "use_", grabbed_object)
                 self.game.actions.continue_current_actions()
             else:
-                self.run_dialogue()
+                self.use_(grabbed_object)
         elif euclidean_distance(self.game.main_character.position, self.position) > 250:
             self.game.show_text(f"Estoy demasiado lejos.")
         elif grabbed_object and not self.game.use_object_with_target(self.id, grabbed_object.id):
@@ -107,16 +107,24 @@ class Character:
         elif grabbed_object:
             self.game.show_text(f"USAMOS {grabbed_object} en {self.name}")
         else:
-            self.run_dialogue()
+            self.use_(grabbed_object)
 
-    def end_dialogue(self):
-        self.game.end_conversation(self)
+    def use_(self, grabbed_object=None):
+        print("USE_",self.id)
+        if grabbed_object:
+            if not self.game.use_object_with_target(self.id, grabbed_object.id):
+                self.game.show_text("No se porque haría eso.")
+        else:
+            self.run_dialogue()
 
     def run_dialogue(self):
         if self.dialogue_data:
             self.game.start_conversation(self)
         else:
             self.speak("¿Por que demonios le hablaría?")
+
+    def end_dialogue(self):
+        self.game.end_conversation(self)
 
     def speak(self, text):
         # TODO: Add voice? Change animation when speaking?

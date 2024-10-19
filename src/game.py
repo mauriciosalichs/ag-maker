@@ -215,7 +215,7 @@ class Game:
             if keys[pygame.K_h]:
                 self.show_help = not self.show_help
             if self.interactive_mode():
-                if keys[pygame.K_SPACE] and self.current_line:
+                if keys[pygame.K_SPACE]:
                     tmp_i = 1000
                 if keys[pygame.K_ESCAPE]:
                         running = False

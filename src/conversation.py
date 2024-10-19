@@ -61,4 +61,3 @@ class Conversation:
 
     def end(self):
         self.game.choose_response = False
-        print("CONVERSATION ENDED")
