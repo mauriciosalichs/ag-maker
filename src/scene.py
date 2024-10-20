@@ -9,8 +9,13 @@ class Scene:
         self.background_music = pygame.mixer.Sound(f'assets/sounds/{id}.mp3') if os.path.exists(f'assets/sounds/{id}.mp3') else None
         self.width = self.background_image.get_width()
         self.height = self.background_image.get_height()
-        self.walkable_areas = data['walkableAreas']
-        self.forbidden_areas = data['forbiddenAreas']
+
+        self.is_map = data['isMap'] if 'isMap' in data.keys() else False
+        self.marks = data['marks'] if 'marks' in data.keys() else []
+        self.selected_mark = None
+
+        self.walkable_areas = data['walkableAreas'] if 'walkableAreas' in data.keys() else []
+        self.forbidden_areas = data['forbiddenAreas'] if 'forbiddenAreas' in data.keys() else []
         self.objects = []  # Lista de objetos en la escena
         self.characters = []  # Lista de personajes en la escena
         self.main_character = None
@@ -70,7 +75,7 @@ class Scene:
                 self.main_character.draw(screen)
                 main_char_drawn = True
             obj.draw(screen)
-        if not main_char_drawn:		# Si el personaje aun no fue dibujado, lo hacemos aquí
+        if self.main_character and not main_char_drawn:		# Si el personaje aun no fue dibujado, lo hacemos aquí
             self.main_character.draw(screen)
     
     def update(self):
@@ -81,6 +86,9 @@ class Scene:
     def handle_click(self, position, button, selected_object):
         x,y = position
         if button == 1: 	# Left click
+            if self.is_map:
+                print("clicking in map at",position)
+                return
             for char in self.characters:
                 if char.area_includes(x, y):
                     char.observe()
@@ -93,6 +101,10 @@ class Scene:
             self.walk_to(self.main_character, position)
 
         elif button == 3: 	# Right click
+            if self.is_map:
+                if self.selected_mark:
+                    self.game.change_scene(self.selected_mark)
+                return
             for char in self.characters:
                 if char.area_includes(x,y):
                     char.use(selected_object)

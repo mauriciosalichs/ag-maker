@@ -2,7 +2,8 @@
 
   "__checkpoints": "This register will allow us to know what has been accomplished in the game so far",
   "checkpoints" : [
-    "gameStarted"
+    "gameStarted",
+    "runningCar"
     ],
 
   "__grabRules": ["Rules to grab an object. The structure is: [objectId, matchedCheckpoints, checkpoints]",
@@ -53,6 +54,6 @@
                     ["O_streetCar","change_name","Coche encendido."],
                     ["O_streetCar","change_description",["¡Mi nuevo coche para moverme por Barcelona!"]]],
     "carStartRunning" : [["C_mainCharacter","speak","Vayamos a dar una vuelta."],
-                         ["game","change_scene","parcGuell"]]
+                         ["game","change_scene","map"]]
   }
 }}

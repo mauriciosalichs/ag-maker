@@ -40,6 +40,7 @@ class Character:
         self.target_position = self.position  # Posición objetivo (a dónde se moverá)
         self.speed = 0.5  # Velocidad de movimiento del personaje
         self.is_moving = False
+        self.states = data["states"]
         self.currentState = 'idle'
         self.walking_path = []
         self.frame_delay = data['frameDelay'] if 'frameDelay' in data.keys() else 10
@@ -53,13 +54,13 @@ class Character:
         self.name = name
         self.game.current_action_finished(f"changed name {self.id} to {name}")
 
-    def change_descriptio(self, description):
+    def change_description(self, description):
         self.description = description
         self.game.current_action_finished(f"changed description {self.id} to {description}")
 
-    def change_conversation(self, conversationId):
-        self.dialogue_data = self.game.conversations_data[conversationId]
-        self.game.current_action_finished(f"changed conversation {self.id} to {conversationId}")
+    def change_conversation(self, conversation_id):
+        self.dialogue_data = self.game.conversations_data[conversation_id]
+        self.game.current_action_finished(f"changed conversation {self.id} to {conversation_id}")
 
     def area_includes(self, x, y):
         if not self.rect.collidepoint((x, y)):
@@ -78,7 +79,7 @@ class Character:
         for filename in sorted(os.listdir(root_dir+folder)):
             path = os.path.join(folder, filename)
             image = pygame.image.load(path).convert_alpha()
-            # Redimensionar la imagen si es necesario
+            # Redimensionar la imagen si es necesario (esto debería hacerse en el archivo)
             new_size = (image.get_width() // 3, image.get_height() // 3)
             image = pygame.transform.scale(image, new_size)
             sprites.append(image)
@@ -128,6 +129,7 @@ class Character:
 
     def speak(self, text):
         # TODO: Add voice? Change animation when speaking?
+        self.change_state('speak')
         self.game.show_text(text, self.dialogue_color)
 
     def draw(self, screen):

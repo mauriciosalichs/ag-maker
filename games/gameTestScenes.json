@@ -33,6 +33,37 @@
       "forbiddenAreas": [[[1655, 1282], [1659, 1199], [1751, 1154], [1911, 1168], [1957, 1244], [1947, 1304], [1817, 1348], [1715, 1317]]],
       "characters": [
         ["mainCharacter",[1300,1020]],
-        ["willieMouse",[315,920],[557,1123,"left"]]]
-    }
+        ["willieMouse",[315,920],[557,1123,"left"]]],
+      "objects": [["streetCar",[1300,960],[1300, 1020, "right"]]]
+    },
+
+    "passeigGracia": {
+      "name": "Passeig de Gracia",
+      "backgroundImg": "passeig_gracia.webp",
+      "cameraX" : 1300,
+      "cameraY" : 500,
+      "walkableAreas": [[[2164, 1018], [2162, 960], [1149, 973],
+        [561, 967], [564, 1017], [715, 1039], [884, 1063], [927, 1097], [925, 1129], [1736, 1129], [1742, 1073], [1848, 1053], [1968, 1035]]],
+      "forbiddenAreas": [[[2171, 1000], [1949, 993], [1924, 946]]],
+      "characters": [
+        ["mainCharacter",[2000,1020]]
+        ],
+      "objects": [["streetCar",[2080,1000],[2000, 1020, "right"]]]
+    },
+
+  "map": {
+    "name": "Mapa",
+    "isMap": true,
+    "marks" : [
+      ["sagradaFamilia",877,319],
+      ["tibidabo",658,104],
+      ["arcDeTriumph",869,434],
+      ["parcGuell",731,247],
+      ["santPau",1036,295],
+      ["barceloneta",756,663],
+      ["passeigGracia",688,367]],
+    "backgroundImg": "map.png",
+    "cameraX" : 200,
+    "cameraY" : 20
+  }
 }}

@@ -59,10 +59,40 @@ class Game:
         self.action_in_place = False
         self.choose_response = False
 
-    # Set other components of the game
+    def camera_reposition(self):
+        mc_x, mc_y = self.main_character.position
+        mc_x -= self.camera.x
+        mc_y -= self.camera.y
+        if mc_x < 300:
+            self.camera.x -= 1
+        if mc_x > self.camera_width - 300:
+            self.camera.x += 1
+        if mc_y < 300:
+            self.camera.y -= 1
+        if mc_y > self.camera_height - 300:
+            self.camera.y += 1
+        if self.camera.left < 0:
+            self.camera.left = 0
+        if self.camera.right > self.world_width:
+            self.camera.right = self.world_width
+        if self.camera.top < 0:
+            self.camera.top = 0
+        if self.camera.bottom > self.world_height:
+            self.camera.bottom = self.world_height
 
     def interactive_mode(self):
         return not (self.action_in_place or self.show_help)
+
+    def enter_debug_mode(self):
+        self.debug_running = True
+        self.screen = pygame.display.set_mode((self.camera_width, self.camera_height + self.debug.height))
+        self.debug.ceil = self.camera_height
+        self.debug.rect = pygame.Rect(0, self.camera_height, self.camera_width, self.debug.height)
+        self.debug.go_to_idle()
+        self.debug.run()
+        # Screen go back to normal after Debugging
+        self.screen = pygame.display.set_mode((self.camera_width, self.camera_height))
+        self.debug_running = False
 
     def set_actions(self, actions):
         self.actions = actions
@@ -82,10 +112,32 @@ class Game:
             self.conversation.answer()
         self.actions.continue_current_actions()
 
+    def handle_input_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+            elif not self.interactive_mode():
+                break
+            elif event.type == pygame.KEYDOWN and not self.choose_response:
+                if event.key == pygame.K_ESCAPE:
+                    return False
+                elif event.key == pygame.K_i:
+                    self.inventory_is_open = not self.inventory_is_open
+                elif event.key == pygame.K_h:
+                    self.show_help = not self.show_help
+                elif event.key == pygame.K_d:
+                    self.enter_debug_mode()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                self.handle_click(event.button)
+        return True
+
     def set_inventory(self, inventory):
         self.inventory = inventory
 
     def change_scene(self, scene):
+        if scene not in self.scenes_data.keys():
+            print(f"Scene {scene} not yet implemented.")
+            return
         if self.current_scene.background_music:
             self.current_scene.background_music.stop()
         self.scenes[self.current_scene_id] = self.current_scene
@@ -104,17 +156,18 @@ class Game:
 
     def set_scene(self, scene=''):
         if scene == '': scene = self.current_scene_id
+        current_scene_data = self.scenes_data[scene]
         if scene in self.scenes.keys():
             self.current_scene = self.scenes[scene]
         else:
             self.current_scene_id = scene
-            current_scene_data = self.scenes_data[scene]
             self.current_scene = Scene(self, scene, current_scene_data)
             data_objects = current_scene_data["objects"] if "objects" in current_scene_data.keys() else []
             for od in data_objects:
                 object_data = self.objects_data[od[0]]
                 self.current_scene.add_object(Object(self, od[0], object_data), od)
-            for cd in current_scene_data["characters"]:
+            data_chars = current_scene_data["characters"] if "characters" in current_scene_data.keys() else []
+            for cd in data_chars:
                 character_data = self.characters_data[cd[0]]
                 char_dialogues = self.conversations_data[cd[0]] if cd[0] in self.conversations_data.keys() else None
                 self.current_scene.add_character(Character(self, cd[0], character_data, char_dialogues), cd)
@@ -151,8 +204,6 @@ class Game:
 
     # TODO: def play_animation(self, animation):
 
-    # Show a line of dialogue as a subtitle
-
     def show_text(self, text, color=(0,0,0)):
         if type(text) == str:
             text = [text]
@@ -176,6 +227,18 @@ class Game:
         if tmp_og and button == 3:
             self.grabbed_object = None
 
+    def mouse_over_map(self):
+        for m in self.current_scene.marks:
+            if euclidean_distance((m[1], m[2]), self.mouse_pos) < 50:
+                self.current_scene.selected_mark = m[0]
+                ts = self.main_text_font.render(m[0], True, self.current_color)
+                tr = ts.get_rect(center=(m[1]-self.camera.x,m[2]-self.camera.y))
+                br = pygame.Rect(tr.left - 10, tr.top - 5, tr.width + 20, tr.height + 10)
+                pygame.draw.rect(self.screen, (255, 255, 255, 50), br)
+                self.screen.blit(ts, tr)
+                return
+        self.current_scene.selected_mark = None
+
     def run(self):
         # Main Loop
         running = True
@@ -184,65 +247,13 @@ class Game:
         while running:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             self.mouse_camera_pos = (mouse_x, mouse_y)
-            if not self.choose_response:
-                keys = pygame.key.get_pressed()
-
-            # Camera reposition
-            mc_x, mc_y = self.main_character.position
-            mc_x -= self.camera.x
-            mc_y -= self.camera.y
-            if mc_x < 300:
-                self.camera.x -= 1
-            if mc_x > self.camera_width - 300:
-                self.camera.x += 1
-            if mc_y < 300:
-                self.camera.y -= 1
-            if mc_y > self.camera_height - 300:
-                self.camera.y += 1
-            if self.camera.left < 0:
-                self.camera.left = 0
-            if self.camera.right > self.world_width:
-                self.camera.right = self.world_width
-            if self.camera.top < 0:
-                self.camera.top = 0
-            if self.camera.bottom > self.world_height:
-                self.camera.bottom = self.world_height
-
+            if self.main_character: self.camera_reposition()
             # Adjust the position of the cursor to the camera
             self.mouse_pos = (mouse_x + self.camera.x, mouse_y + self.camera.y)
             cursor_rect = self.cursor.get_rect(center=(mouse_x, mouse_y)) if self.cursor else None
-
-            if keys[pygame.K_h]:
-                self.show_help = not self.show_help
-            if self.interactive_mode():
-                if keys[pygame.K_SPACE]:
-                    tmp_i = 1000
-                if keys[pygame.K_ESCAPE]:
-                        running = False
-                if keys[pygame.K_d]:
-                    if self.debug:
-                        # Go to Debug Mode
-                        self.debug_running = True
-                        self.screen = pygame.display.set_mode((self.camera_width, self.camera_height + self.debug.height))
-                        self.debug.ceil = self.camera_height
-                        self.debug.rect = pygame.Rect(0, self.camera_height, self.camera_width, self.debug.height)
-                        self.debug.go_to_idle()
-                        self.debug.run()
-                        # Screen go back to normal after Debugging
-                        self.screen = pygame.display.set_mode((self.camera_width, self.camera_height))
-                        self.debug_running = False
-                if keys[pygame.K_i]:
-                    self.inventory_is_open = not self.inventory_is_open
-                # Other keys...
-
-            # Handle mouse click
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                elif event.type == pygame.MOUSEBUTTONDOWN and self.interactive_mode():
-                    self.handle_click(event.button)
-                
-            # We update the scene and then draw everything in a specific order
+            #if keys[pygame.K_SPACE]:
+            #    tmp_i = 1000
+            running = self.handle_input_events()
 
             # We update the scene and the world inside the camera view
             self.current_scene.update()
@@ -277,10 +288,8 @@ class Game:
                         self.start_time = pygame.time.get_ticks()
                     else:
                         self.current_line = None
-                        self.start_time = None
                         self.current_action_finished("showing text")
 
-            # If there is a grabbed object, we show it now
             if self.grabbed_object:
                 if not self.inventory.rect.collidepoint((mouse_x,mouse_y)):
                     self.inventory_is_open = False
@@ -294,24 +303,24 @@ class Game:
             tmpy = 0
             x, y = self.mouse_pos
             pointed_e = None
-            for e in self.current_scene.objects + self.current_scene.characters:
-                if e.area_includes(x, y):
-                    if e.position and e.position[1] > tmpy:
-                        pointed_e = e
-                        tmpy = e.position[1]
-            if pointed_e:
-                pointed_e.text_rect.centerx = mouse_x
-                pointed_e.text_rect.bottom = mouse_y - 20
-                self.screen.blit(pointed_e.text_surface, pointed_e.text_rect)
-                
-            # We show response options, if any
-            if self.choose_response:
-                self.conversation.draw_options(self.screen)
+            if self.current_scene.is_map:
+                self.mouse_over_map()
+            else:
+                # TODO: All of these can go to a dedicated function
+                for e in self.current_scene.objects + self.current_scene.characters:
+                    if e.area_includes(x, y):
+                        if e.position and e.position[1] > tmpy:
+                            pointed_e = e
+                            tmpy = e.position[1]
+                if pointed_e:
+                    pointed_e.text_rect.centerx = mouse_x
+                    pointed_e.text_rect.bottom = mouse_y - 20
+                    self.screen.blit(pointed_e.text_surface, pointed_e.text_rect)
 
+            if self.choose_response: self.conversation.draw_options(self.screen)
             if self.show_help:
                 img_rect = self.help_img.get_rect(center=(self.camera_width//2,self.camera_height//2))
                 self.screen.blit(self.help_img, img_rect)
-
             if self.cursor: self.screen.blit(self.cursor, cursor_rect)
             pygame.display.flip()
 
