@@ -55,20 +55,6 @@
     ]
   },
   "sf": {
-    "polygon": [
-      [
-        1242,
-        420
-      ],
-      [
-        956,
-        377
-      ],
-      [
-        960,
-        145
-      ]
-    ],
     "name": "Sagrada Familia",
     "description": [
       "Wooow. Está tan inacabada como prometían."
@@ -76,7 +62,17 @@
     "notUsable": [
       "Hay una fila enorme para entrar, y no he reservado."
     ],
-    "properties": []
+    "properties": ["place"]
+  },
+  "batllo": {
+    "name": "Casa Batllo",
+    "description": [
+      "Esas curvas me marean."
+    ],
+    "notUsable": [
+      "Pues parece que está cerrada."
+    ],
+    "properties": ["place"]
   },
   "myNotebook": {
     "img": "Cuaderno.png",

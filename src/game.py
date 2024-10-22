@@ -58,8 +58,26 @@ class Game:
         self.actions = None
         self.action_in_place = False
         self.choose_response = False
+        self.camera_target = None
 
     def camera_reposition(self):
+        if self.camera_target:
+            if self.camera_target[0] > 0:
+                self.camera.x += 1
+                self.camera_target[0] -= 1
+            elif self.camera_target[0] < 0:
+                self.camera.x -= 1
+                self.camera_target[0] += 1
+            if self.camera_target[1] > 0:
+                self.camera.y += 1
+                self.camera_target[1] -= 1
+            elif self.camera_target[1] < 0:
+                self.camera.y -= 1
+                self.camera_target[1] += 1
+            if self.camera_target[0] == 0 and self.camera_target[1] == 0:
+                self.camera_target = None
+                self.current_action_finished(f"move_camera")
+            return
         mc_x, mc_y = self.main_character.position
         mc_x -= self.camera.x
         mc_y -= self.camera.y
@@ -104,6 +122,9 @@ class Game:
     def start_conversation(self, character):
         self.conversation = Conversation(self, character)
         self.conversation.start()
+
+    def set_camera_target(self, target):
+        self.camera_target = target
 
     def current_action_finished(self, action=""):
         if action != "showing text": print("FINISHED", action)
@@ -183,8 +204,6 @@ class Game:
             self.current_scene.background_music.play(loops=-1)
         self.current_action_finished(f"set_scece {scene}")
 
-        # Define some main actions game-wide
-
     def grab_object(self, obj):
         if self.actions.allowGrab(obj.id):
             self.inventory.add_item(obj)
@@ -234,7 +253,7 @@ class Game:
                 ts = self.main_text_font.render(m[0], True, self.current_color)
                 tr = ts.get_rect(center=(m[1]-self.camera.x,m[2]-self.camera.y))
                 br = pygame.Rect(tr.left - 10, tr.top - 5, tr.width + 20, tr.height + 10)
-                pygame.draw.rect(self.screen, (255, 255, 255, 50), br)
+                pygame.draw.rect(self.screen, (205, 205, 205), br)
                 self.screen.blit(ts, tr)
                 return
         self.current_scene.selected_mark = None
@@ -300,24 +319,30 @@ class Game:
                 self.screen.blit(img, rect)
 
             # We show the name of whichever element is being pointed
-            tmpy = 0
-            x, y = self.mouse_pos
-            pointed_e = None
-            if self.current_scene.is_map:
-                self.mouse_over_map()
-            else:
-                # TODO: All of these can go to a dedicated function
-                for e in self.current_scene.objects + self.current_scene.characters:
-                    if e.area_includes(x, y):
-                        if e.position and e.position[1] > tmpy:
-                            pointed_e = e
-                            tmpy = e.position[1]
-                if pointed_e:
-                    pointed_e.text_rect.centerx = mouse_x
-                    pointed_e.text_rect.bottom = mouse_y - 20
-                    self.screen.blit(pointed_e.text_surface, pointed_e.text_rect)
+            if not self.interactive_mode():
+                pygame.display.flip()
+                continue
 
-            if self.choose_response: self.conversation.draw_options(self.screen)
+            if self.choose_response:
+                self.conversation.draw_options(self.screen)
+            else:
+                tmpy = 0
+                x, y = self.mouse_pos
+                pointed_e = None
+                if self.current_scene.is_map:
+                    self.mouse_over_map()
+                else:
+                    # TODO: All of these can go to a dedicated function
+                    for e in self.current_scene.objects + self.current_scene.characters:
+                        if e.area_includes(x, y):
+                            if e.position and e.position[1] > tmpy:
+                                pointed_e = e
+                                tmpy = e.position[1]
+                    if pointed_e:
+                        pointed_e.text_rect.centerx = mouse_x
+                        pointed_e.text_rect.bottom = mouse_y - 20
+                        self.screen.blit(pointed_e.text_surface, pointed_e.text_rect)
+
             if self.show_help:
                 img_rect = self.help_img.get_rect(center=(self.camera_width//2,self.camera_height//2))
                 self.screen.blit(self.help_img, img_rect)

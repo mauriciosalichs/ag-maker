@@ -24,8 +24,8 @@
   "__useRules": ["Rules to use an object. The structure is: [objectId, matchedCheckpoints, triggers] where ",
     "the triggers are checkpoints obtained, with an associated trigger."],
   "useRules": [
-    ["streetCar",["runningCar"],"carStartRunning"]
-
+    ["streetCar",["runningCar"],"carStartRunning"],
+    ["batllo",[],"lookCasaBatllo"]
   ],
   
   "__useWithTargetRules": ["Rules to use an object with a target. The structure is: [objectId, targetId,",
@@ -54,6 +54,7 @@
                     ["O_streetCar","change_name","Coche encendido."],
                     ["O_streetCar","change_description",["¡Mi nuevo coche para moverme por Barcelona!"]]],
     "carStartRunning" : [["C_mainCharacter","speak","Vayamos a dar una vuelta."],
-                         ["game","change_scene","map"]]
+                         ["game","change_scene","map"]],
+    "lookCasaBatllo" : [["game","set_camera_target",[0,-500]]]
   }
 }}

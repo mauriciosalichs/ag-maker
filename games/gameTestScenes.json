@@ -14,7 +14,7 @@
         ["streetCar",[500,520],[555, 533, "left"]],
         ["streetTent",[793,432],[670, 485, "right"]],
         ["carKeys",[762,658]],
-        ["sf",""]],
+        ["sf",[1080,220],[931,577,"right"]]],
       "characters": [
         ["mainCharacter",[360,420]],
         ["manny",[649,716],[710,740,"left"]]]
@@ -48,7 +48,8 @@
       "characters": [
         ["mainCharacter",[2000,1020]]
         ],
-      "objects": [["streetCar",[2080,1000],[2000, 1020, "right"]]]
+      "objects": [["streetCar",[2080,1000],[2000, 1020, "right"]],
+                  ["batllo",[1228,714],[1261,980,"left"]]]
     },
 
   "map": {

@@ -16,7 +16,6 @@ class Object:
         self.name = data["name"]
         self.description = data["description"]
         self.grab_description = data["grabDescription"] if "grabDescription" in data.keys() else None
-        self.polygon = data["polygon"] if "polygon" in data.keys() else None
 
         self.position = None
         self.rect = None
@@ -29,6 +28,7 @@ class Object:
         
         # Logic properties of an object
         self.position_to_interact = None
+        self.is_place = ("place" in data["properties"])
         self.is_grabbable = ("grabbable" in data["properties"])
         self.is_in_inventory = ("in_inventory" in data["properties"])
         self.standalone_use = ("standalone_use" in data["properties"])
@@ -46,8 +46,8 @@ class Object:
         self.game.current_action_finished(f"change_description {description}")
 
     def area_includes(self, x, y):
-        if self.polygon:	# Object inherent of the scene
-            return point_inside_polygon((x,y), self.polygon)
+        if self.is_place:	# Object inherent of the scene
+            return euclidean_distance((x,y), self.position) < 100
         if not self.rect.collidepoint((x, y)):
             return False
         fix_x = x - self.rect.left
