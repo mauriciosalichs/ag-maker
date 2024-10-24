@@ -52,19 +52,19 @@
                   ["batllo",[1228,714],[1261,980,"left"]]]
     },
 
-  "map": {
-    "name": "Mapa",
-    "isMap": true,
-    "marks" : [
-      ["sagradaFamilia",877,319],
-      ["tibidabo",658,104],
-      ["arcDeTriumph",869,434],
-      ["parcGuell",731,247],
-      ["santPau",1036,295],
-      ["barceloneta",756,663],
-      ["passeigGracia",688,367]],
-    "backgroundImg": "map.png",
-    "cameraX" : 200,
-    "cameraY" : 20
-  }
+    "map": {
+      "name": "Mapa",
+      "isMap": true,
+      "marks" : [
+        ["sagradaFamilia",877,319],
+        ["tibidabo",658,104],
+        ["arcDeTriumph",869,434],
+        ["parcGuell",731,247],
+        ["santPau",1036,295],
+        ["barceloneta",756,663],
+        ["passeigGracia",688,367]],
+      "backgroundImg": "map.png",
+      "cameraX" : 200,
+      "cameraY" : 20
+    }
 }}

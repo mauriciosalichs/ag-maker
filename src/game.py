@@ -3,6 +3,7 @@ from src.character import Character
 from src.object import Object
 from src.conversation import Conversation
 from src.utils import *
+from time import sleep
 
 # Main game class
 class Game:
@@ -53,12 +54,13 @@ class Game:
         self.current_color = None
         self.frame_delay = 10
 
-        # Things still not implemented
         self.conversation = None
         self.actions = None
         self.action_in_place = False
         self.choose_response = False
+
         self.camera_target = None
+        self.waiting_time = 0
 
     def camera_reposition(self):
         if self.camera_target:
@@ -77,6 +79,9 @@ class Game:
             if self.camera_target[0] == 0 and self.camera_target[1] == 0:
                 self.camera_target = None
                 self.current_action_finished(f"move_camera")
+            return
+        if self.waiting_time > 0:
+            self.waiting_time -= 1
             return
         mc_x, mc_y = self.main_character.position
         mc_x -= self.camera.x
@@ -124,7 +129,8 @@ class Game:
         self.conversation.start()
 
     def set_camera_target(self, target):
-        self.camera_target = target
+        self.camera_target = target[:2]
+        if len(target) > 2: self.waiting_time = target[-1]
 
     def current_action_finished(self, action=""):
         if action != "showing text": print("FINISHED", action)
