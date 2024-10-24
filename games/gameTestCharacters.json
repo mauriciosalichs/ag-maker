@@ -37,5 +37,21 @@
     "currentState": "idle",
     "dialogueColor": "(30,70,100)",
     "frameDelay": 10
+  },
+
+  "saladFingers": {
+    "name": "Salad Fingers",
+    "description": [
+      "Este tipo... tiene algo muy raro. Es como si el óxido le diera más vida que la gente.",
+      "¿Qué clase de mundo ha visto para acabar así? Mejor no tocar nada...",
+      "quién sabe si su locura es contagiosa."
+    ],
+    "states": [
+      "idle"
+    ],
+    "currentState": "idle",
+    "dialogueColor": "(90,70,200)",
+    "frameDelay": 15,
+    "flags": ["idleRecurringAnimation"]
   }
 }}

@@ -42,7 +42,11 @@ class Character:
         self.is_moving = False
         self.states = data["states"]
         self.currentState = 'idle'
+        self.flags = data['flags'] if 'flags' in data.keys() else []
         self.walking_path = []
+
+        self.idle_delay_counter = 0
+        self.idle_recurring_animation = 'idleRecurringAnimation' in self.flags
         self.frame_delay = data['frameDelay'] if 'frameDelay' in data.keys() else 10
         self.frame_counter = 0  # Contador de frames
 
@@ -122,7 +126,7 @@ class Character:
         if self.dialogue_data:
             self.game.start_conversation(self)
         else:
-            self.speak("¿Por que demonios le hablaría?")
+            self.game.main_character.speak("¿Por que demonios le hablaría?")
 
     def end_dialogue(self):
         self.game.end_conversation(self)
@@ -150,6 +154,17 @@ class Character:
     def update(self):
         """Actualiza la posición del personaje y la animación."""
         # Cambiar al siguiente frame de la animación con retraso
+
+        # Delay counter to control idle animation delay
+        if self.idle_recurring_animation and self.currentState == 'idle':
+            # Check if the animation is on the first frame and handle the delay
+            if self.current_frame == 0:
+                self.idle_delay_counter += 1
+                if self.idle_delay_counter < 5 * self.frame_delay:
+                    return  # Still waiting, skip the frame update
+                else:
+                    self.idle_delay_counter = 0
+
         self.frame_counter += 1
         if self.frame_counter >= self.frame_delay:
             self.current_frame = (self.current_frame + 1) % len(self.sprites)
@@ -201,6 +216,8 @@ class Character:
             self.face_right = not self.face_right
 
     def change_state(self, newState):
+        if self.currentState == newState:
+            return
         self.currentState = newState
         try:
             self.sprites = self.load_sprites(self.sprite_dirs[self.currentState])

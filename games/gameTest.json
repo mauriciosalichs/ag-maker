@@ -3,7 +3,7 @@
   "cameraWidth": 1000,
   "cameraHeight": 800,
   "cursorImg":"cursor.png",
-  "currentScene":"sagradaFamilia",
+  "currentScene":"passeigGracia",
   "inventory": {
     "img": "inventory.png",
     "grid": [4,3],
